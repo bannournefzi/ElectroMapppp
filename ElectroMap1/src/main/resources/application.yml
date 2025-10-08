@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 60MB
+
+springdoc:
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api/v1/v3/api-docs
+
+
+server:
+  servlet:
+    context-path: /api/v1
+
