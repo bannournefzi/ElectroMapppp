@@ -1,0 +1,824 @@
+// Variables
+$primary-color: #667eea;
+$secondary-color: #764ba2;
+$success-color: #48bb78;
+$warning-color: #ed8936;
+$error-color: #f56565;
+$gray-50: #f7fafc;
+$gray-100: #edf2f7;
+$gray-200: #e2e8f0;
+$gray-300: #cbd5e0;
+$gray-400: #a0aec0;
+$gray-500: #718096;
+$gray-600: #4a5568;
+$gray-700: #2d3748;
+$gray-800: #1a202c;
+$gray-900: #171923;
+
+$border-radius: 12px;
+$border-radius-lg: 16px;
+$shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// Mixins
+@mixin gradient-bg($color1, $color2) {
+  background: linear-gradient(135deg, $color1 0%, $color2 100%);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin transition-all {
+  transition: all 0.3s ease;
+}
+
+// Main Container
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  min-height: 100vh;
+}
+
+// Back Button
+.back-button-container {
+  margin-bottom: 1.5rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 2px solid $gray-200;
+  border-radius: $border-radius;
+  color: $gray-700;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  @include transition-all;
+  box-shadow: $shadow-sm;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+  }
+  
+  .back-label {
+    font-weight: 600;
+  }
+  
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+    
+    svg {
+      transform: translateX(-2px);
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  // Style alternatif avec gradient (optionnel)
+  &.primary-style {
+    @include gradient-bg($primary-color, $secondary-color);
+    color: white;
+    border-color: transparent;
+    
+    &:hover {
+      color: white;
+      box-shadow: $shadow-lg;
+      transform: translateY(-2px);
+    }
+  }
+  
+  // Mobile responsive
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .back-label {
+      display: none;
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  @include flex-center;
+  min-height: 400px;
+}
+
+.skeleton-card {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: 2rem;
+  box-shadow: $shadow-lg;
+  width: 100%;
+  max-width: 800px;
+  animation: pulse 2s infinite;
+
+  .skeleton-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .skeleton-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: $gray-200;
+  }
+
+  .skeleton-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .skeleton-name {
+    height: 2rem;
+    width: 60%;
+    background: $gray-200;
+    border-radius: 4px;
+  }
+
+  .skeleton-email {
+    height: 1rem;
+    width: 40%;
+    background: $gray-200;
+    border-radius: 4px;
+  }
+
+  .skeleton-roles {
+    height: 1.5rem;
+    width: 50%;
+    background: $gray-200;
+    border-radius: 4px;
+  }
+
+  .skeleton-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .skeleton-item {
+    height: 3rem;
+    background: $gray-200;
+    border-radius: $border-radius;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+// Error State
+.error-container {
+  @include flex-center;
+  min-height: 400px;
+}
+
+.error-card {
+  background: white;
+  border-radius: $border-radius-lg;
+  padding: 3rem 2rem;
+  box-shadow: $shadow-lg;
+  text-align: center;
+  max-width: 400px;
+
+  .error-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    color: $error-color;
+    
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $gray-800;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: $gray-600;
+    margin-bottom: 2rem;
+  }
+
+  .retry-btn {
+    @include gradient-bg($primary-color, $secondary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: $border-radius;
+    font-weight: 500;
+    cursor: pointer;
+    @include transition-all;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+  }
+}
+
+// Profile Content
+.profile-content {
+  background: white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xl;
+  overflow: hidden;
+}
+
+// Profile Header
+.profile-header {
+  position: relative;
+}
+
+.cover-image {
+  height: 200px;
+  @include gradient-bg($primary-color, $secondary-color);
+  position: relative;
+  overflow: hidden;
+
+  .cover-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="p" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle fill="%23ffffff10" cx="10" cy="10" r="2"/></pattern></defs><rect fill="url(%23p)" width="100" height="20"/></svg>') repeat;
+  }
+}
+
+.header-content {
+  padding: 2rem;
+  margin-top: -60px;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 2rem;
+  align-items: start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 1.5rem;
+    margin-top: -40px;
+  }
+}
+
+.avatar-section {
+  position: relative;
+}
+
+.avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: $shadow-lg;
+  background: white;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid white;
+  
+  &.status-green {
+    background-color: $success-color;
+  }
+  
+  &.status-orange {
+    background-color: $warning-color;
+  }
+  
+  &.status-red {
+    background-color: $error-color;
+  }
+  
+  &.status-gray {
+    background-color: $gray-400;
+  }
+}
+
+.profile-info {
+  .profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $gray-800;
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+
+    display: inline-block;             
+    padding: .25rem .6rem;             
+    border: 2px solid $primary-color; 
+    border-radius: .5rem;              
+    background: #ffffff59;              
+  }
+
+  .profile-email {
+    font-size: 1.125rem;
+    color: $gray-600;
+    margin-bottom: 1rem;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    &.status-green {
+      background-color: rgba($success-color, 0.1);
+      color: $success-color;
+      
+      .status-dot {
+        background-color: $success-color;
+      }
+    }
+    
+    &.status-orange {
+      background-color: rgba($warning-color, 0.1);
+      color: $warning-color;
+      
+      .status-dot {
+        background-color: $warning-color;
+      }
+    }
+    
+    &.status-red {
+      background-color: rgba($error-color, 0.1);
+      color: $error-color;
+      
+      .status-dot {
+        background-color: $error-color;
+      }
+    }
+    
+    &.status-gray {
+      background-color: rgba($gray-400, 0.1);
+      color: $gray-600;
+      
+      .status-dot {
+        background-color: $gray-400;
+      }
+    }
+  }
+
+  .roles-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    
+    &.role-red {
+      background-color: rgba($error-color, 0.1);
+      color: $error-color;
+    }
+    
+    &.role-blue {
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+    }
+    
+    &.role-purple {
+      background-color: rgba($secondary-color, 0.1);
+      color: $secondary-color;
+    }
+    
+    &.role-green {
+      background-color: rgba($success-color, 0.1);
+      color: $success-color;
+    }
+    
+    &.role-gray {
+      background-color: rgba($gray-400, 0.1);
+      color: $gray-600;
+    }
+  }
+
+  .member-since {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $gray-500;
+    font-size: 0.875rem;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid $gray-200;
+  background: white;
+  border-radius: $border-radius;
+  color: $gray-700;
+  font-weight: 500;
+  cursor: pointer;
+  @include transition-all;
+  min-width: 160px;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .action-label {
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+  
+  &:hover:not(.disabled) {
+    border-color: $primary-color;
+    color: $primary-color;
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: $gray-200;
+    color: $gray-400;
+  }
+  
+  &:first-child:not(.disabled) {
+    @include gradient-bg($primary-color, $secondary-color);
+    color: white;
+    border-color: transparent;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+  }
+}
+
+// Profile Details
+.profile-details {
+  padding: 2rem;
+  background: $gray-50;
+}
+
+.details-section {
+  background: white;
+  border-radius: $border-radius;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: $shadow-sm;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: $gray-800;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid $gray-100;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: $primary-color;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $gray-600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    color: $gray-400;
+  }
+}
+
+.info-value {
+  font-size: 1rem;
+  color: $gray-800;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  background: $gray-50;
+  border-radius: $border-radius;
+  border-left: 4px solid $primary-color;
+  
+  // Style pour les valeurs manquantes
+  &.empty-value {
+    color: $gray-500;
+    font-style: italic;
+    border-left-color: $gray-300;
+  }
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  
+  &.chip-green {
+    background-color: $success-color;
+    color: white;
+  }
+  
+  &.chip-orange {
+    background-color: $warning-color;
+    color: white;
+  }
+  
+  &.chip-red {
+    background-color: $error-color;
+    color: white;
+  }
+  
+  &.chip-gray {
+    background-color: $gray-400;
+    color: white;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .profile-container {
+    padding: 1rem;
+  }
+  
+  .header-content {
+    padding: 1.5rem;
+  }
+  
+  .profile-details {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-name {
+    font-size: 1.75rem !important;
+  }
+  
+  .avatar {
+    width: 100px !important;
+    height: 100px !important;
+  }
+  
+  .cover-image {
+    height: 150px !important;
+  }
+  
+  .info-grid {
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-container {
+    padding: 0.5rem;
+  }
+  
+  .header-content {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .profile-details {
+    padding: 1rem;
+  }
+  
+  .details-section {
+    padding: 1rem;
+  }
+  
+  .action-btn {
+    min-width: auto;
+    padding: 0.75rem;
+  }
+}
+
+// Dark Mode Support (optionnel)
+@media (prefers-color-scheme: dark) {
+  .profile-content {
+    background: $gray-800;
+    color: white;
+  }
+  
+  .details-section {
+    background: $gray-700;
+  }
+  
+  .profile-details {
+    background: $gray-900;
+  }
+  
+  .section-title {
+    color: white;
+    border-bottom-color: $gray-600;
+  }
+  
+  .info-label {
+    color: $gray-300;
+  }
+  
+  .info-value {
+    background: $gray-600;
+    color: white;
+  }
+  
+  .profile-name {
+    color: white;
+  }
+  
+  .profile-email {
+    color: $gray-300;
+  }
+  
+  .action-btn {
+    background: $gray-700;
+    border-color: $gray-600;
+    color: $gray-200;
+    
+    &:hover:not(.disabled) {
+      background: $gray-600;
+    }
+  }
+  
+  .back-btn {
+    background: $gray-700;
+    border-color: $gray-600;
+    color: $gray-200;
+    
+    &:hover {
+      background: $gray-600;
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+  }
+}
+
+// Animations et effets spéciaux
+.profile-content {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.avatar {
+  @include transition-all;
+  
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.role-badge, .status-chip {
+  @include transition-all;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+}
+
+// Micro-interactions
+.info-item {
+  @include transition-all;
+  
+  &:hover {
+    .info-value {
+      transform: translateX(4px);
+      box-shadow: $shadow-sm;
+    }
+  }
+}

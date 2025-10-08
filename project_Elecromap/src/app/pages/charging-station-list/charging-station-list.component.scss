@@ -1,0 +1,329 @@
+/* 🎨 Palette claire, simple */
+
+:host {
+  --primary-color: #2563eb;   /* bleu */
+  --success-color: #16a34a;   /* vert */
+  --danger-color:  #ef4444;   /* rouge */
+  --warning-color: #f59e0b;   /* jaune */
+  --info-color:    #0ea5e9;   /* bleu clair */
+  --text-color:    #1f2937;   /* gris foncé lisible */
+  --muted-color:   #6b7280;   /* gris neutre */
+  --surface:       #ffffff;   /* cartes / panneaux */
+  --surface-2:     #f8fafc;   /* fond page */
+  --border:        #e5e7eb;
+  --radius:        12px;
+  --shadow:        0 6px 16px rgba(15, 23, 42, .06);
+ --topbar-h: 99px; /* change if your bar is taller/shorter */
+
+}
+
+/* 📦 Conteneur: padding propre en haut / gauche / droite */
+.charging-station-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px clamp(6px, 3vw, 28px) 24px; /* top | x | bottom */
+  background: var(--surface-2);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ====== Header ====== */
+.page-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px;
+  padding: 16px 18px;              /* padding net */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.page-title {
+  margin: 0; font-size: 1.6rem; font-weight: 800; color: var(--text-color);
+  display:flex; align-items:center; gap:10px;
+  i { color: var(--primary-color); }
+}
+.header-content { display:flex; align-items:center; gap: 14px; }
+.header-stats { display:flex; gap:12px; color: var(--muted-color); }
+.stat-item i { color: var(--primary-color); }
+
+/* Boutons header */
+.header-actions { display:flex; gap:10px; }
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 10px 14px; border-radius: 10px; border:1px solid var(--border);
+  background: var(--surface); color: var(--text-color);
+  transition: .15s ease; box-shadow: none;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-primary { background: var(--primary-color); color:#fff; border-color: transparent; }
+.btn-secondary { background: #eef2ff; color:#1e40af; border-color:#c7d2fe; }
+.btn-info { background: var(--info-color); color:#fff; border-color: transparent; }
+.btn-danger { background: var(--danger-color); color:#fff; border-color: transparent; }
+.btn-sm { padding: 8px 10px; border-radius: 8px; }
+
+/* ====== Filtres ====== */
+.filters-section{
+  display:flex; gap:16px; flex-wrap:wrap;
+  padding: 14px 16px;
+  background: var(--surface);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.filter-group { display:flex; flex-direction:column; gap:6px; min-width: 220px; }
+.filter-group label { font-weight:600; color: var(--text-color); font-size:.92rem; }
+.filter-select{
+  padding: 10px 12px; border:1px solid var(--border); border-radius:10px;
+  background:#fff; color: var(--text-color); transition:.15s;
+}
+.filter-select:focus { outline:none; border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,.3); }
+
+/* ====== Grille des stations (cartes plus petites) ====== */
+.stations-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.station-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition:.2s ease;
+}
+.station-card:hover { transform: translateY(-3px); }
+
+.station-header{ padding: 14px 16px; border-bottom:1px solid var(--border); }
+.station-name{ margin:0 0 10px 0; font-size:1.1rem; font-weight:700; color: var(--text-color); }
+
+.station-badges{ display:flex; flex-wrap:wrap; gap:8px; }
+.badge{
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 4px 10px; border-radius: 999px; font-size:.78rem; font-weight:700;
+  border:1px solid var(--border); background:#fff; color: var(--text-color);
+}
+.type-badge.standard { background:#eaf2ff; color:#2563eb; border-color:#bfdbfe; }
+.type-badge.fast     { background:#fff7ed; color:#ea580c; border-color:#fed7aa; }
+.type-badge.ultra-fast{ background:#ecfdf5; color:#16a34a; border-color:#bbf7d0; }
+
+.availability-badge.available { background:#ecfdf5; color:var(--success-color); border-color:#bbf7d0; }
+.availability-badge.unavailable { background:#fef2f2; color:var(--danger-color); border-color:#fecaca; }
+.working-badge.working { background:#eef2ff; color:#4338ca; border-color:#c7d2fe; }
+.working-badge.not-working { background:#fff7ed; color:#b45309; border-color:#fed7aa; }
+
+/* Contenu carte */
+.station-content { padding: 14px 16px; }
+.info-row{
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+  color: var(--muted-color); font-size:.92rem;
+}
+.info-row i{ color: var(--primary-color); width:16px; }
+
+/* Actions carte */
+.station-actions{
+  display:flex; gap:8px; padding: 12px 16px;
+  border-top:1px solid var(--border); background: #f9fafb;
+}
+
+/* ====== Loading / Empty ====== */
+.loading-container{ display:flex; flex-direction:column; align-items:center; gap:10px; padding: 40px 16px; }
+.spinner{ width:34px; height:34px; border:3px solid #eef2ff; border-top:3px solid var(--primary-color); border-radius:50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg);} }
+
+.no-stations{ text-align:center; padding:50px 16px; color: var(--muted-color); }
+.no-stations i{ font-size:3rem; color:#e5e7eb; margin-bottom:12px; }
+.no-stations h3{ margin:0 0 8px; color: var(--text-color); }
+
+/* ====== Modales ====== */
+.modal-overlay{
+  position:fixed; 
+  inset:0; 
+  z-index:50; 
+  background: rgba(2,6,23,.5);
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  padding:26px;
+}
+.modal-content{
+  width: min(820px, 92vw); max-height: 86vh; overflow:auto;
+  background: var(--surface); border:1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.modal-header, .modal-footer{ padding: 14px 16px; border-bottom:1px solid var(--border); }
+.modal-footer{ border-top:1px solid var(--border); border-bottom:0; }
+.modal-body{ padding: 14px 16px; }
+.form-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+.form-group.full-width{ grid-column: 1 / -1; }
+input, select, textarea{
+  padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:#fff; color: var(--text-color);
+}
+input:focus, select:focus, textarea:focus{ outline:none; border-color:#93c5fd; box-shadow: 0 0 0 3px rgba(147,197,253,.3); }
+
+/* ====== Carte (app-map) : taille réduite et propre ====== */
+app-map{
+  display:block;
+  height: 20px;                 /* ↓ taille réduite */
+  margin: 16px auto 0;
+  max-width: 1480px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+/* ====== Responsive paddings ====== */
+@media (max-width: 992px){
+.charging-station-container{
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: clamp(14px, 2vw, 28px);
+  padding-right: clamp(14px, 2vw, 28px);
+  /* padding-top sera géré par has-fixed-topbar */
+}  .page-header{ flex-direction: column; align-items: stretch; }
+}
+@media (max-width: 600px){
+  .charging-station-container{ padding: 22px 14px 16px; }
+  .filters-section{ padding: 12px; }
+  .stations-grid{ grid-template-columns: 1fr; }
+}
+/* ====== Layout offsets (top/left) ====== */
+/* adapte ces valeurs à ton layout réel */
+:root{
+  --topbar-h: 72px;         /* hauteur réelle de ta barre du haut */
+  --sidebar-w: 280px;       /* largeur sidebar ouverte */
+  --sidebar-w-mini: 80px;   /* largeur sidebar réduite (icônes) */
+}
+
+/* Si ta sidebar est FIXE et recouvre le contenu, active la marge gauche: */
+body.layout-fixed .charging-station-container {
+  margin-left: var(--sidebar-w);
+}
+
+/* marge top propre sous la topbar + padding horizontaux responsives */
+.charging-station-container {
+  padding-top: calc(var(--topbar-h) + 18px);
+  padding-left: clamp(14px, 2vw, 28px);
+  padding-right: clamp(14px, 2vw, 28px);
+}
+
+/* ====== Modales (Add / Edit) — amélioration ====== */
+.modal-overlay {
+  background: rgba(2, 6, 23, 0.55);
+  backdrop-filter: blur(4px);
+  animation: overlayIn .12s ease-out both;
+}
+
+.modal-content {
+  width: min(760px, 94vw);
+  max-height: 88vh;
+  display: flex;                 /* header/body/footer sticky-friendly */
+  flex-direction: column;
+  overflow: hidden;              /* évite le double scroll */
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 16px 40px rgba(2, 6, 23, .18);
+  animation: modalIn .16s ease-out both;
+}
+
+/* Header & Footer “sticky” */
+.modal-header {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+
+  h2 {
+    margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--text-color);
+    display: flex; align-items: center; gap: 10px;
+    i { color: var(--primary-color); }
+  }
+}
+.modal-footer {
+  position: sticky; bottom: 0; z-index: 1;
+  background: #f9fafb;
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* Corps scrollable */
+.modal-body {
+  padding: 14px 16px;
+  overflow: auto;               /* scroll seulement ici */
+  flex: 1 1 auto;
+}
+
+/* Grille du formulaire — dense mais lisible */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+.form-group { grid-column: span 6; }   /* 2 colonnes */
+.form-group.full-width { grid-column: 1 / -1; }
+
+.form-group label {
+  font-size: .92rem; font-weight: 600; color: var(--text-color);
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff; color: var(--text-color);
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-group textarea { min-height: 90px; resize: vertical; }
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, .35);
+}
+
+/* checkboxes en grille compacte */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+.checkbox-label {
+  display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-color);
+}
+.checkbox-label input[type="checkbox"] {
+  width: 18px; height: 18px; margin: 0; accent-color: var(--primary-color);
+}
+
+/* Bouton fermer */
+.modal-close {
+  width: 38px; height: 38px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #fff; color: #6b7280;
+  display: grid; place-items: center;
+  transition: .15s ease;
+}
+.modal-close:hover { color: var(--text-color); transform: translateY(-1px); }
+
+/* Boutons d’action (tu as déjà .btn, on affine pour la modale) */
+.modal-footer .btn { padding: 10px 14px; border-radius: 10px; }
+.modal-footer .btn-primary { background: var(--primary-color); border-color: transparent; color: #fff; }
+.modal-footer .btn-secondary { background: #eef2ff; border-color: #c7d2fe; color: #1e40af; }
+
+/* Animations */
+@keyframes modalIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .form-group { grid-column: span 12; } /* 1 colonne */
+}
+@media (max-width: 580px) {
+  .modal-header, .modal-body, .modal-footer { padding: 12px; }
+  .modal-close { width: 34px; height: 34px; border-radius: 8px; }
+}

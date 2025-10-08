@@ -1,0 +1,206 @@
+<!-- Profile Container -->
+<div class="profile-container">
+  
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <button class="back-btn" (click)="goBack()" title="Retour à la page précédente">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      <span class="back-label">Retour</span>
+    </button>
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="skeleton-card">
+      <div class="skeleton-header">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-info">
+          <div class="skeleton-name"></div>
+          <div class="skeleton-email"></div>
+          <div class="skeleton-roles"></div>
+        </div>
+      </div>
+      <div class="skeleton-content">
+        <div class="skeleton-item" *ngFor="let item of [1,2,3,4,5,6]"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-card">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <h3>Erreur de chargement</h3>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="refreshProfile()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </svg>
+        Réessayer
+      </button>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="data && !loading && !error" class="profile-content">
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="cover-image">
+        <div class="cover-gradient"></div>
+      </div>
+      
+      <div class="header-content">
+        <div class="avatar-section">
+          <div class="avatar-container">
+            <img 
+              class="avatar" 
+              [src]="'https://ui-avatars.com/api/?name=' + data.firstName + '+' + data.lastName + '&background=667eea&color=fff&size=120&bold=true&format=svg'"
+              [alt]="data.firstName + ' ' + data.lastName"
+            >
+            <div class="status-indicator" [class]="'status-' + getStatusColor()"></div>
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <h1 class="profile-name">{{ data.firstName }} {{ data.lastName }}</h1>
+          <div class="profile-email">{{ data.email }}</div>
+          
+          <div class="status-badge" [class]="'status-' + getStatusColor()">
+            <span class="status-dot"></span>
+            {{ getStatusText() }}
+          </div>
+
+          <div class="roles-container">
+            <span 
+              class="role-badge" 
+              [class]="'role-' + getRoleColor(role)"
+              *ngFor="let role of data.roles"
+            >
+              {{ role }}
+            </span>
+          </div>
+
+          <div class="member-since">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            {{ getTimeSinceCreation() }}
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button 
+            *ngFor="let action of profileActions"
+            class="action-btn"
+            [class.disabled]="action.disabled"
+            [disabled]="action.disabled"
+            (click)="action.action()"
+            [title]="action.label"
+          >
+            <svg *ngIf="action.icon === 'edit'" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+            <svg *ngIf="action.icon === 'mail'" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <svg *ngIf="action.icon === 'share'" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.50-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+            </svg>
+            <span class="action-label">{{ action.label }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Details -->
+    <div class="profile-details">
+      <div class="details-section">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          Informations personnelles
+        </h3>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19v2h-1.5v17.5c0 .83-.67 1.5-1.5 1.5H8c-.83 0-1.5-.67-1.5-1.5V4H5V2h4.5c0-.83.67-1.5 1.5-1.5h3c.83 0 1.5.67 1.5 1.5H19.5z"/>
+              </svg>
+              Date de naissance
+            </div>
+            <div class="info-value" [class.empty-value]="!data.dateOfBirth">
+              {{ formatDateOfBirth(data.dateOfBirth) }}
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+              </svg>
+              Type de voiture
+            </div>
+            <div class="info-value" [class.empty-value]="!data.carType">
+              {{ data.carType || 'Non renseigné' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+          </svg>
+          Informations du compte
+        </h3>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1M10 17L6 13L7.41 11.59L10 14.17L16.59 7.58L18 9L10 17Z"/>
+              </svg>
+              Statut du compte
+            </div>
+            <div class="info-value">
+              <span class="status-chip" [class]="'chip-' + getStatusColor()">
+                {{ getStatusText() }}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.89-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+              </svg>
+              Créé le
+            </div>
+            <div class="info-value">{{ formatDate(data.creationDate) }}</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-label">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19v2h-1.5v17.5c0 .83-.67 1.5-1.5 1.5H8c-.83 0-1.5-.67-1.5-1.5V4H5V2h4.5c0-.83.67-1.5 1.5-1.5h3c.83 0 1.5.67 1.5 1.5H19.5z"/>
+              </svg>
+              Dernière modification
+            </div>
+            <div class="info-value">{{ formatDate(data.lastModifiedDate) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

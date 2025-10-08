@@ -1,0 +1,636 @@
+
+
+<!-- Container principal avec design moderne -->
+<div class="admin-container">
+
+  <!-- Top Navbar -->
+<header class="navbar">
+  <div class="navbar-left">
+    <button class="menu-toggle" (click)="toggleSidebar()" [class.active]="sidebarCollapsed">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="logo">
+      <i class="fas fa-bolt logo-icon"></i>
+      <div class="logo-text">
+        <span class="brand-name">ElectroMap</span>
+        <span class="slogan">Find. Charge. Go</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="navbar-center">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Rechercher une borne ou un utilisateur…"
+        [(ngModel)]="searchQuery"
+        (input)="onSearch($event)"
+      >
+    </div>
+  </div>
+  
+  <div class="navbar-right">
+    <div class="theme-toggle" (click)="toggleTheme()">
+      <i [class]="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+    </div>
+    
+    <div class="notification-container" (click)="toggleNotifications()">
+      <i class="fas fa-bell notification-icon" [class.active]="showNotifications"></i>
+      <span class="notification-badge" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+      
+      <!-- Notifications Dropdown -->
+      <div class="notifications-dropdown" [class.show]="showNotifications">
+        <div class="notifications-header">
+          <h4>Notifications</h4>
+          <button (click)="markAllAsRead()">Tout marquer comme lu</button>
+        </div>
+        <div class="notifications-list">
+          <div class="notification-item" *ngFor="let notification of notifications" [class.unread]="!notification.read">
+            <div class="notification-icon" [ngClass]="notification.type">
+              <i [class]="notification.icon"></i>
+            </div>
+            <div class="notification-content">
+              <p class="notification-title">{{notification.title}}</p>
+              <p class="notification-message">{{notification.message}}</p>
+              <p class="notification-time">{{notification.time}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="profile-container" (click)="toggleProfileDropdown()">
+      <div class="profile-avatar">
+        <img 
+          [src]="userProfile.avatar" 
+          [alt]="userProfile.name"
+          class="avatar-img"
+        >
+        <div class="status-indicator" [class.online]="userProfile.isOnline"></div>
+      </div>
+      
+      <div class="profile-dropdown" [class.show]="showProfileDropdown">
+        <div class="profile-info">
+          <img [src]="userProfile.avatar" [alt]="userProfile.name">
+          <div>
+            <h4>{{userProfile.name}}</h4>
+            <p>{{userProfile.role}}</p>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" (click)="navigateTo('/profile')">
+          <i class="fas fa-user"></i>
+          <span>Mon Profil</span>
+        </div>
+        <div class="dropdown-item" (click)="navigateTo('/settings')">
+          <i class="fas fa-cog"></i>
+          <span>Paramètres</span>
+        </div>
+        <div class="dropdown-item" (click)="navigateTo('/help')">
+          <i class="fas fa-question-circle"></i>
+          <span>Aide & Support</span>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item logout" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Déconnexion</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Sidebar -->
+ <aside class="sidebar" [class.collapsed]="sidebarCollapsed" [class.dark]="darkMode">
+  <nav class="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title" *ngIf="!sidebarCollapsed">Principal</div>
+      
+      <div class="nav-item"
+     [class.active]="activeRoute === 'admin'"
+     (click)="navigateTo('/admin')">
+  <i class="fas fa-chart-bar nav-icon"></i>
+  <span class="nav-text">Dashboard</span>
+  <div class="nav-indicator"></div>
+</div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'map'" 
+           (click)="navigateTo('/map')">
+        <i class="fas fa-map nav-icon"></i>
+        <span class="nav-text">Carte Interactive</span>
+        <div class="nav-indicator"></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title" *ngIf="!sidebarCollapsed">Gestion</div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'stations'" 
+           (click)="navigateTo('/stations')">
+        <i class="fas fa-charging-station nav-icon"></i>
+        <span class="nav-text">Bornes de Charge</span>
+        <span class="nav-badge" *ngIf="stationsCount">{{stationsCount}}</span>
+        <div class="nav-indicator"></div>
+      </div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'users'" 
+           (click)="navigateTo('/users')">
+        <i class="fas fa-users nav-icon"></i>
+        <span class="nav-text">Utilisateurs</span>
+        <span class="nav-badge" *ngIf="usersCount">{{usersCount}}</span>
+        <div class="nav-indicator"></div>
+      </div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'reservations'" 
+           (click)="navigateTo('/reservations')">
+        <i class="fas fa-calendar-check nav-icon"></i>
+        <span class="nav-text">Réservations</span>
+        <div class="nav-indicator"></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title" *ngIf="!sidebarCollapsed">Analyses</div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'analytics'" 
+           (click)="navigateTo('/analytics')">
+        <i class="fas fa-chart-line nav-icon"></i>
+        <span class="nav-text">Statistiques</span>
+        <div class="nav-indicator"></div>
+      </div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'reports'" 
+           (click)="navigateTo('/reports')">
+        <i class="fas fa-file-alt nav-icon"></i>
+        <span class="nav-text">Rapports</span>
+        <div class="nav-indicator"></div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title" *ngIf="!sidebarCollapsed">Configuration</div>
+      
+      <div class="nav-item" 
+           [class.active]="activeRoute === 'settings'" 
+           (click)="navigateTo('/settings')">
+        <i class="fas fa-cog nav-icon"></i>
+        <span class="nav-text">Paramètres</span>
+        <div class="nav-indicator"></div>
+      </div>
+    </div>
+
+    <div class="nav-footer">
+      <div class="nav-item logout-item" (click)="logout()">
+        <i class="fas fa-door-open nav-icon"></i>
+        <span class="nav-text">Déconnexion</span>
+      </div>
+    </div>
+  </nav>
+</aside> 
+  <!-- Header avec gradient et statistiques -->
+  <div class="admin-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Gestion des Utilisateurs</h1>
+          <p class="page-subtitle">Administration des comptes utilisateurs</p>
+        </div>
+      </div>
+      
+      <div class="header-stats">
+        <div class="stat-card">
+          <div class="stat-icon active">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ getActiveUsersCount() }}</span>
+            <span class="stat-label">Actifs</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ users?.length || 0 }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon admin">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ getAdminUsersCount() }}</span>
+            <span class="stat-label">Admins</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre d'actions moderne -->
+  <div class="action-bar">
+    <div class="filters-section">
+      <div class="filter-group">
+        <label class="filter-label">
+          <i class="fas fa-filter"></i>
+          Statut
+        </label>
+        <select class="modern-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+          <option value="all">Tous les utilisateurs</option>
+          <option value="active">Utilisateurs actifs</option>
+          <option value="inactive">Utilisateurs inactifs</option>
+          <option value="locked">Comptes verrouillés</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">
+          <i class="fas fa-user-tag"></i>
+          Rôle
+        </label>
+        <select class="modern-select" [(ngModel)]="filterRole" (change)="applyFilters()">
+          <option value="all">Tous les rôles</option>
+          <option value="ROLE_USER">Utilisateurs</option>
+          <option value="ROLE_ADMIN">Administrateurs</option>
+        </select>
+      </div>
+
+      <button class="refresh-btn" (click)="reloadUsers()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt" [class.spinning]="isLoading"></i>
+        <span>Actualiser</span>
+      </button>
+    </div>
+
+    <button class="add-user-btn" (click)="openAddUserModal()">
+      <i class="fas fa-user-plus"></i>
+      <span>Nouvel Utilisateur</span>
+    </button>
+  </div>
+
+  <!-- Grille de cartes modernes -->
+<div class="users-grid" *ngIf="!isLoading && users.length > 0">
+      <div class="user-card" 
+         *ngFor="let user of users; trackBy: trackByUserId"
+         [class.inactive]="!user.enabled"
+         [class.locked]="user.accountLocked">
+      
+      <!-- Header de la carte -->
+      <div class="card-header">
+        <div class="user-info">
+          <div class="user-avatar">
+            <img [src]="getUserAvatar(user)" 
+                 [alt]="user.firstName + ' ' + user.lastName"
+                 class="avatar-image">
+            <div class="status-indicator" [ngClass]="getUserStatusClass(user)"></div>
+          </div>
+          <div class="user-details">
+            <h3 class="user-name">{{ user.firstName }} {{ user.lastName }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <div class="user-roles">
+              <span class="role-badge" 
+                    *ngFor="let role of user.roles"
+                    [ngClass]="getRoleClass(role.name)">
+                {{ getRoleLabel(role.name) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="user-status-badges">
+          <span class="status-badge" 
+                [ngClass]="user.enabled ? 'badge-success' : 'badge-danger'">
+            {{ user.enabled ? 'Actif' : 'Inactif' }}
+          </span>
+          <span class="status-badge" 
+                [ngClass]="user.accountLocked ? 'badge-warning' : 'badge-secondary'"
+                *ngIf="user.accountLocked">
+            Verrouillé
+          </span>
+        </div>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="card-content">
+        <div class="user-info-grid">
+          <div class="info-item">
+            <i class="fas fa-birthday-cake"></i>
+            <span class="info-label">Né(e) le</span>
+            <span class="info-value">{{ user.dateOfBirth | date:'dd/MM/yyyy' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <i class="fas fa-car"></i>
+            <span class="info-label">Véhicule</span>
+            <span class="info-value">{{ user.carType || 'Non renseigné' }}</span>
+          </div>
+
+          <div class="info-item">
+            <i class="fas fa-calendar-plus"></i>
+            <span class="info-label">Créé le</span>
+            <span class="info-value">{{ user.creationDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="info-item">
+            <i class="fas fa-edit"></i>
+            <span class="info-label">Modifié le</span>
+            <span class="info-value">{{ user.lastModifiedDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="user-phone" *ngIf="user.phone">
+          <i class="fas fa-phone"></i>
+          <span>{{ user.phone }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card-actions">
+        <button class="action-btn view-btn" (click)="viewUserDetails(user)" title="Voir les détails">
+          <i class="fas fa-eye"></i>
+        </button>
+        <button class="action-btn edit-btn" (click)="editUser(user)" title="Modifier">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="action-btn toggle-btn" 
+                (click)="toggleUserStatus(user)" 
+                [title]="user.enabled ? 'Désactiver' : 'Activer'"
+                [ngClass]="user.enabled ? 'disable-btn' : 'enable-btn'">
+          <i [class]="user.enabled ? 'fas fa-user-slash' : 'fas fa-user-check'"></i>
+        </button>
+        <button class="action-btn delete-btn" (click)="deleteUser(user.id!)" title="Supprimer">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- États de chargement et vide -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <h3>Chargement des utilisateurs...</h3>
+    <p>Veuillez patienter pendant que nous récupérons les données</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && users.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-users"></i>
+    </div>
+    <h3>Aucun utilisateur trouvé</h3>
+    <p>Commencez par ajouter votre premier utilisateur</p>
+    <button class="add-first-user-btn" (click)="openAddUserModal()">
+      <i class="fas fa-user-plus"></i>
+      Ajouter un utilisateur
+    </button>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-state" *ngIf="error && !isLoading">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h3>Erreur de chargement</h3>
+    <p>{{ error }}</p>
+    <button class="retry-btn" (click)="reloadUsers()">
+      <i class="fas fa-redo"></i>
+      Réessayer
+    </button>
+  </div>
+</div>
+
+<!-- Modal d'ajout moderne -->
+<div class="modal-overlay" *ngIf="isAddModalOpen" (click)="closeAddModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-user-plus"></i>
+        Nouvel Utilisateur
+      </h2>
+      <button class="close-btn" (click)="closeAddModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form (ngSubmit)="createUser()" class="modal-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="firstName">
+            <i class="fas fa-user"></i>
+            Prénom
+          </label>
+          <input id="firstName" type="text" [(ngModel)]="newUser.firstName" 
+                 name="firstName" placeholder="Ex: Jean" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">
+            <i class="fas fa-user"></i>
+            Nom
+          </label>
+          <input id="lastName" type="text" [(ngModel)]="newUser.lastName" 
+                 name="lastName" placeholder="Ex: Dupont" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="email">
+            <i class="fas fa-envelope"></i>
+            Email
+          </label>
+          <input id="email" type="email" [(ngModel)]="newUser.email" 
+                 name="email" placeholder="jean.dupont@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="dateOfBirth">
+            <i class="fas fa-birthday-cake"></i>
+            Date de naissance
+          </label>
+          <input id="dateOfBirth" type="date" [(ngModel)]="newUser.dateOfBirth" 
+                 name="dateOfBirth" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">
+            <i class="fas fa-phone"></i>
+            Téléphone
+          </label>
+          <input id="phone" type="tel" [(ngModel)]="newUser.phone" 
+                 name="phone" placeholder="Ex: +216 12 345 678">
+        </div>
+
+        <div class="form-group">
+          <label for="carType">
+            <i class="fas fa-car"></i>
+            Type de véhicule
+          </label>
+          <select id="carType" [(ngModel)]="newUser.carType" name="carType">
+            <option value="TESLA">Tesla</option>
+            <option value="BMW">BMW</option>
+            <option value="VOLKSWAGEN">Volkswagen</option>
+            <option value="AUDI">Audi</option>
+            <option value="RENAULT">Renault</option>
+            <option value="PEUGEOT">Peugeot</option>
+            <option value="HONDA">Honda</option>
+            <option value="OTHER">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="role">
+            <i class="fas fa-user-tag"></i>
+            Rôle
+          </label>
+          <select id="role" [(ngModel)]="newUser.roleValue" name="role" required>
+            <option [value]="1">Utilisateur</option>
+            <option [value]="2">Administrateur</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="password">
+            <i class="fas fa-lock"></i>
+            Mot de passe
+          </label>
+          <input id="password" type="password" [(ngModel)]="newUser.password" 
+                 name="password" placeholder="Minimum 8 caractères" required>
+        </div>
+
+        <div class="form-group full-width">
+          <div class="switch-group">
+            <label class="switch-item">
+              <input type="checkbox" [(ngModel)]="newUser.enabled" name="enabled">
+              <span class="switch-custom"></span>
+              <span class="switch-label">Compte activé</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeAddModal()">
+          <i class="fas fa-times"></i>
+          Annuler
+        </button>
+        <button type="submit" class="btn-create">
+          <i class="fas fa-user-plus"></i>
+          Créer l'utilisateur
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de modification moderne -->
+<div class="modal-overlay" *ngIf="isEditModalOpen" (click)="closeEditModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>
+        <i class="fas fa-user-edit"></i>
+        Modifier l'Utilisateur
+      </h2>
+      <button class="close-btn" (click)="closeEditModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form (ngSubmit)="saveUser()" class="modal-form" *ngIf="editedUser">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editFirstName">
+            <i class="fas fa-user"></i>
+            Prénom
+          </label>
+          <input id="editFirstName" type="text" [(ngModel)]="editedUser.firstName" 
+                 name="editFirstName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editLastName">
+            <i class="fas fa-user"></i>
+            Nom
+          </label>
+          <input id="editLastName" type="text" [(ngModel)]="editedUser.lastName" 
+                 name="editLastName" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="editEmail">
+            <i class="fas fa-envelope"></i>
+            Email
+          </label>
+          <input id="editEmail" type="email" [(ngModel)]="editedUser.email" 
+                 name="editEmail" disabled>
+        </div>
+
+        <div class="form-group">
+          <label for="editDateOfBirth">
+            <i class="fas fa-birthday-cake"></i>
+            Date de naissance
+          </label>
+          <input id="editDateOfBirth" type="date" [(ngModel)]="editedUser.dateOfBirth" 
+                 name="editDateOfBirth">
+        </div>
+
+        <div class="form-group">
+          <label for="editCarType">
+            <i class="fas fa-car"></i>
+            Type de véhicule
+          </label>
+          <select id="editCarType" [(ngModel)]="editedUser.carType" name="editCarType">
+            <option value="TESLA">Tesla</option>
+            <option value="BMW">BMW</option>
+            <option value="VOLKSWAGEN">Volkswagen</option>
+            <option value="AUDI">Audi</option>
+            <option value="RENAULT">Renault</option>
+            <option value="PEUGEOT">Peugeot</option>
+            <option value="HONDA">Honda</option>
+            <option value="OTHER">Autre</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <div class="switch-group">
+            <label class="switch-item">
+              <input type="checkbox" [(ngModel)]="editedUser.enabled" name="editEnabled">
+              <span class="switch-custom"></span>
+              <span class="switch-label">Compte activé</span>
+            </label>
+            
+            <label class="switch-item">
+              <input type="checkbox" [(ngModel)]="editedUser.accountLocked" name="editLocked">
+              <span class="switch-custom"></span>
+              <span class="switch-label">Compte verrouillé</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeEditModal()">
+          <i class="fas fa-times"></i>
+          Annuler
+        </button>
+        <button type="submit" class="btn-save">
+          <i class="fas fa-save"></i>
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

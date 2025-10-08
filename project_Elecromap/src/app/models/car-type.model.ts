@@ -1,0 +1,12 @@
+export enum CarType {
+  TESLA = 'TESLA',
+  BMW = 'BMW',
+  VOLKSWAGEN = 'VOLKSWAGEN',
+  AUDI = 'AUDI',
+  RENAULT = 'RENAULT',
+  PEUGEOT = 'PEUGEOT',
+  HONDA = 'HONDA',
+  MERCEDES = 'MERCEDES',
+  OTHER = 'OTHER'
+
+}

@@ -1,0 +1,424 @@
+// Variables SCSS
+$primary-color: #2563eb;
+$primary-dark: #1d4ed8;
+$secondary-color: #10b981;
+$accent-color: #f59e0b;
+$background-color: #f8fafc;
+$surface-color: #ffffff;
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+$border-color: #e2e8f0;
+$border-radius: 12px;
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+$transition: all 0.2s ease-in-out;
+
+// Mixins
+@mixin button-hover-effect {
+  transform: translateY(-2px);
+  box-shadow: $shadow-lg;
+}
+
+@mixin form-control-focus {
+  outline: none;
+  border-color: $primary-color;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
+}
+
+// Conteneur principal
+.booking-container {
+  background: $surface-color;
+  border-radius: 20px;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  margin: 0 auto;
+}
+
+// En-tête
+.booking-header {
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  color: white;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+    animation: float 20s infinite linear;
+    pointer-events: none;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.charging-icon {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 1;
+
+  i {
+    font-size: 28px;
+    color: white;
+  }
+}
+
+// Animations
+@keyframes float {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+// Formulaire
+.booking-form {
+  padding: 40px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    color: $primary-color;
+    width: 16px;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 16px;
+  transition: $transition;
+  background: $surface-color;
+  color: $text-primary;
+
+  &:focus {
+    @include form-control-focus;
+  }
+
+  &[type="range"] {
+    padding: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+    border-radius: 4px;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: $surface-color;
+      border: 3px solid $primary-color;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: $shadow-sm;
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: $surface-color;
+      border: 3px solid $primary-color;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: $shadow-sm;
+    }
+  }
+}
+
+// Select personnalisé
+.select-wrapper {
+  position: relative;
+
+  &::after {
+    content: '\f107';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-secondary;
+    pointer-events: none;
+  }
+
+  select.form-control {
+    appearance: none;
+    cursor: pointer;
+    padding-right: 45px;
+  }
+}
+
+// Indicateur de batterie
+.battery-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.battery-visual {
+  width: 50px;
+  height: 25px;
+  border: 2px solid $border-color;
+  border-radius: 4px;
+  position: relative;
+  background: #f1f5f9;
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 6px;
+    width: 4px;
+    height: 13px;
+    background: $border-color;
+    border-radius: 0 2px 2px 0;
+  }
+}
+
+.battery-level {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+
+  &.low {
+    background: #ef4444;
+  }
+
+  &.medium {
+    background: $accent-color;
+  }
+
+  &.high {
+    background: $secondary-color;
+  }
+}
+
+.battery-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+// Groupe date/heure
+.datetime-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+// Informations estimées
+.estimated-info {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  border: 1px solid #0284c7;
+  border-radius: $border-radius;
+  padding: 16px;
+  margin-top: 20px;
+
+  h4 {
+    color: #0284c7;
+    font-size: 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 12px;
+  color: #0369a1;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0c4a6e;
+}
+
+// Boutons d'action
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 35px;
+}
+
+.btn {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  &.loading {
+    cursor: wait;
+  }
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: $text-primary;
+  border: 2px solid $border-color;
+
+  &:hover:not(:disabled) {
+    background: #e2e8f0;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  color: white;
+  box-shadow: $shadow-md;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $primary-dark, #1e40af);
+    @include button-hover-effect;
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .booking-container {
+    margin: 10px;
+    border-radius: 16px;
+  }
+
+  .booking-form {
+    padding: 30px 20px;
+  }
+
+  .datetime-group {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .booking-header {
+    padding: 25px 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+  }
+
+  .charging-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+
+    i {
+      font-size: 24px;
+    }
+  }
+}
+
+// États de validation Angular
+.ng-invalid.ng-touched {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.ng-valid.ng-touched {
+  border-color: $secondary-color !important;
+}
+
+// Animation de chargement
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,409 @@
+<!-- admin-reservations.component.html -->
+<div class="admin-reservations">
+  <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="menu-toggle" (click)="toggleSidebar()" [class.active]="sidebarCollapsed">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="logo">
+        <i class="fas fa-bolt logo-icon"></i>
+        <div class="logo-text">
+          <span class="brand-name">ElectroMap</span>
+          <span class="slogan">Find. Charge. Go</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="navbar-center">
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Rechercher une borne ou un utilisateur…"
+          [(ngModel)]="searchQuery"
+          (input)="onSearch($event)"
+        >
+      </div>
+    </div>
+    
+    <div class="navbar-right">
+      <button class="theme-toggle" (click)="toggleTheme()">
+        <i [class]="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+      </button>
+      
+      <div class="notification-container" (click)="toggleNotifications()">
+        <button class="notification-btn" [class.active]="showNotifications">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+        </button>
+      </div>
+      
+      <div class="profile-container" (click)="toggleProfileDropdown()">
+        <div class="profile-avatar">
+          <img 
+            [src]="userProfile.avatar" 
+            [alt]="userProfile.name"
+            class="avatar-img"
+            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22%3E%3Crect width=%2240%22 height=%2240%22 fill=%22%23667eea%22/%3E%3Ctext x=%2220%22 y=%2225%22 font-size=%2216%22 fill=%22white%22 text-anchor=%22middle%22%3EAU%3C/text%3E%3C/svg%3E'"
+          >
+          <div class="status-indicator online"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-title" *ngIf="!sidebarCollapsed">Principal</div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'dashboard'" (click)="navigateTo('/dashboard')">
+          <i class="fas fa-chart-bar nav-icon"></i>
+          <span class="nav-text">Dashboard</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'map'" (click)="navigateTo('/map')">
+          <i class="fas fa-map nav-icon"></i>
+          <span class="nav-text">Carte Interactive</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title" *ngIf="!sidebarCollapsed">Gestion</div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'stations'" (click)="navigateTo('/stations')">
+          <i class="fas fa-charging-station nav-icon"></i>
+          <span class="nav-text">Bornes de Charge</span>
+          <span class="nav-badge" *ngIf="stationsCount">{{stationsCount}}</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'user_list'" (click)="navigateTo('/user_list')">
+          <i class="fas fa-users nav-icon"></i>
+          <span class="nav-text">Utilisateurs</span>
+          <span class="nav-badge" *ngIf="usersCount">{{ usersCount }}</span>
+        </div>
+        
+        <div class="nav-item active" [class.active]="activeRoute === 'reservations'" (click)="navigateTo('/reservations')">
+          <i class="fas fa-calendar-check nav-icon"></i>
+          <span class="nav-text">Réservations</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title" *ngIf="!sidebarCollapsed">Analyses</div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'analytics'" (click)="navigateTo('/analytics')">
+          <i class="fas fa-chart-line nav-icon"></i>
+          <span class="nav-text">Statistiques</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'reports'" (click)="navigateTo('/reports')">
+          <i class="fas fa-file-alt nav-icon"></i>
+          <span class="nav-text">Rapports</span>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" [class.expanded]="sidebarCollapsed">
+    <!-- Page Header -->
+ 
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+      <div class="filters-container">
+        <div class="search-group">
+          <div class="search-input-wrapper">
+            <i class="fas fa-search"></i>
+            <input 
+              type="text" 
+              placeholder="Rechercher par nom, email ou station..." 
+              [(ngModel)]="q" 
+              (keyup.enter)="fetch()"
+              class="search-input">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-item">
+            <label>Statut</label>
+            <div class="select-wrapper">
+              <select [(ngModel)]="status" (change)="fetch()">
+                <option value="">Tous statuts</option>
+                <option value="EN_ATTENTE">En attente</option>
+                <option value="EN_COURS">En cours</option>
+                <option value="EN_CHARGE">En charge</option>
+                <option value="TERMINEE">Terminée</option>
+                <option value="ANNULEE">Annulée</option>
+                <option value="EXPIREE">Expirée</option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+
+          <div class="filter-item">
+            <label>Du</label>
+            <input type="date" [(ngModel)]="from" (change)="fetch()" class="date-input">
+          </div>
+
+          <div class="filter-item">
+            <label>Au</label>
+            <input type="date" [(ngModel)]="to" (change)="fetch()" class="date-input">
+          </div>
+
+          <div class="filter-actions">
+            <button class="btn-filter" (click)="fetch()">
+              <i class="fas fa-search"></i>
+              Filtrer
+            </button>
+            <button class="btn-reset" (click)="resetFilters()">
+              <i class="fas fa-undo"></i>
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-section" *ngIf="!loading; else loadingTemplate">
+      <div class="table-container">
+        <table class="reservations-table">
+          <thead>
+            <tr>
+              <th class="col-id">#</th>
+              <th class="col-user">Utilisateur</th>
+              <th class="col-station">Station</th>
+              <th class="col-vehicle">Véhicule</th>
+              <th class="col-time">Horaires</th>
+              <th class="col-status">Statut</th>
+              <th class="col-payment">Paiement</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reservation of rows; trackBy: trackByReservation" class="reservation-row">
+              <td class="col-id">
+                <span class="reservation-id">#{{ reservation.id }}</span>
+              </td>
+              
+              <td class="col-user">
+                <div class="user-info">
+                  <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div class="user-details">
+                    <div class="user-name">{{ reservation.utilisateur?.firstName }} {{ reservation.utilisateur?.lastName }}</div>
+                    <div class="user-email">{{ reservation.utilisateur?.email }}</div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="col-station">
+                <div class="station-info">
+                  <div class="station-name">{{ reservation.station?.name || ('#' + reservation.station?.id) }}</div>
+                  <div class="station-address">
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ reservation.station?.address }}
+                  </div>
+                </div>
+              </td>
+
+              <td class="col-vehicle">
+                <div class="vehicle-info">
+                  <i class="fas fa-car"></i>
+                  <span>{{ reservation.typeVehicule }}</span>
+                </div>
+              </td>
+
+              <td class="col-time">
+                <div class="time-info">
+                  <div class="time-start">
+                    <i class="fas fa-play"></i>
+                    {{ formatDateTime(reservation.dateReservation) }}
+                  </div>
+                  <div class="time-end">
+                    <i class="fas fa-stop"></i>
+                    {{ formatDateTime(reservation.dateFinPrevue) }}
+                  </div>
+                  <div class="duration">
+                    <i class="fas fa-clock"></i>
+                    {{ formatMinutes(reservation.tempsEstimeMinutes) }}
+                  </div>
+                </div>
+              </td>
+
+              <td class="col-status">
+                <span class="status-badge" [ngClass]="getStatusClass(reservation.statut)">
+                  <i [class]="getStatusIcon(reservation.statut)"></i>
+                  {{ getStatusLabel(reservation.statut) }}
+                </span>
+              </td>
+
+              <td class="col-payment">
+                <span class="payment-badge" [ngClass]="getPaymentClass(reservation.paiementStatut)">
+                  <i [class]="getPaymentIcon(reservation.paiementStatut)"></i>
+                  {{ getPaymentLabel(reservation.paiementStatut) }}
+                </span>
+              </td>
+
+              <td class="col-actions">
+                <div class="action-buttons">
+                  <button class="btn-action view" (click)="openDetails(reservation)" title="Voir détails">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button class="btn-action edit" (click)="editReservation(reservation)" title="Modifier">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-action delete" (click)="deleteReservation(reservation)" title="Supprimer">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-section" *ngIf="total > size">
+        <div class="pagination-info">
+          Affichage {{ (page * size) + 1 }} à {{ Math.min((page + 1) * size, total) }} sur {{ total }} réservations
+        </div>
+        <div class="pagination-controls">
+          <button class="btn-page" [disabled]="page === 0" (click)="onPageChange(page - 1)">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="page-numbers">
+            <button 
+              *ngFor="let p of getVisiblePages()" 
+              class="btn-page-number" 
+              [class.active]="p === page"
+              (click)="onPageChange(p)">
+              {{ p + 1 }}
+            </button>
+          </div>
+          <button class="btn-page" [disabled]="(page + 1) * size >= total" (click)="onPageChange(page + 1)">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Template -->
+    <ng-template #loadingTemplate>
+      <div class="loading-container">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Chargement des réservations...</p>
+        </div>
+      </div>
+    </ng-template>
+  </main>
+
+  <!-- Modal de détails -->
+  <div class="modal-overlay" [class.active]="showDetails" (click)="closeDetails()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <i class="fas fa-info-circle"></i>
+          Détails de la réservation #{{ selected?.id }}
+        </div>
+        <button class="btn-close" (click)="closeDetails()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" *ngIf="selected">
+        <div class="details-grid">
+          <!-- Informations utilisateur -->
+          <div class="detail-section">
+            <h3><i class="fas fa-user"></i> Utilisateur</h3>
+            <div class="detail-row">
+              <span class="label">Nom complet</span>
+              <span class="value">{{ selected.utilisateur?.firstName }} {{ selected.utilisateur?.lastName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Email</span>
+              <span class="value">{{ selected.utilisateur?.email }}</span>
+            </div>
+          </div>
+
+          <!-- Informations station -->
+          <div class="detail-section">
+            <h3><i class="fas fa-charging-station"></i> Station</h3>
+            <div class="detail-row">
+              <span class="label">Nom</span>
+              <span class="value">{{ selected.station?.name }} (#{{ selected.station?.id }})</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Adresse</span>
+              <span class="value">{{ selected.station?.address }}</span>
+            </div>
+          </div>
+
+          <!-- Informations véhicule -->
+          <div class="detail-section">
+            <h3><i class="fas fa-car"></i> Véhicule</h3>
+            <div class="detail-row">
+              <span class="label">Type</span>
+              <span class="value">{{ selected.typeVehicule }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Charge initiale</span>
+              <div class="battery-indicator">
+                <div class="battery-level" [style.width.%]="selected.pourcentageChargeActuelle"></div>
+                <span class="battery-text">{{ selected.pourcentageChargeActuelle }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informations temporelles -->
+          <div class="detail-section">
+            <h3><i class="fas fa-clock"></i> Horaires</h3>
+            <div class="detail-row">
+              <span class="label">Début</span>
+              <span class="value">{{ formatDateTime(selected.dateReservation) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Fin prévue</span>
+              <span class="value">{{ formatDateTime(selected.dateFinPrevue) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Durée estimée</span>
+              <span class="value">{{ formatMinutes(selected.tempsEstimeMinutes) }}</span>
+            </div>
+          </div>
+
+          <!-- Statut et paiement -->
+          <div class="detail-section">
+            <h3><i class="fas fa-info"></i> État</h3>
+            <div class="detail-row">
+              <span class="label">Statut</span>
+              <span class="status-badge" [ngClass]="getStatusClass(selected.statut)">
+                <i [class]="getStatusIcon(selected.statut)"></i>
+                {{ getStatusLabel(selected.statut) }}
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Paiement</span>
+              <span class="payment-badge" [ngClass]="getPaymentClass(selected.paiementStatut)">
+                <i [class]="getPaymentIcon(selected.paiementStatut)"></i>
+                {{ getPaymentLabel(selected.paiementStatut) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeDetails()">Fermer</button>
+        <button class="btn-primary" (click)="editReservation(selected!)">Modifier</button>
+      </div>
+    </div>
+  </div>
+</div>

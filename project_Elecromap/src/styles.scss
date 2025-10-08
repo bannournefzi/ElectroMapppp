@@ -1,0 +1,12 @@
+::ng-deep .cdk-overlay-container, .cdk-overlay-pane {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  background: rgba(0,0,0,0.5);
+}
+.cdk-overlay-container {
+  z-index: 1000 !important;
+}

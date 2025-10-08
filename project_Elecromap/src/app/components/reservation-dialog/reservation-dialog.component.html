@@ -1,0 +1,127 @@
+<div class="booking-container">
+  <div class="booking-header">
+    <div class="charging-icon pulse-animation">
+      <i class="fas fa-bolt"></i>
+    </div>
+    <h2>Réserver cette station</h2>
+    <p class="subtitle">Configurez votre session de recharge</p>
+  </div>
+
+  <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="booking-form">
+    <!-- Type de véhicule -->
+    <div class="form-group">
+      <label class="form-label">
+        <i class="fas fa-car"></i>
+        Type de véhicule
+      </label>
+      <div class="select-wrapper">
+        <select class="form-control" formControlName="typeVehicule" required>
+          <option value="">Sélectionnez votre véhicule</option>
+          <option *ngFor="let vehicule of voitures" [value]="vehicule">
+            {{ vehicule }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Charge actuelle -->
+    <div class="form-group">
+      <label class="form-label">
+        <i class="fas fa-battery-half"></i>
+        Charge actuelle de la batterie
+      </label>
+      <input 
+        type="range" 
+        class="form-control" 
+        formControlName="pourcentageChargeActuelle"
+        min="0" 
+        max="100" 
+        [value]="pourcentageChargeActuelle"
+        (input)="updateBatteryLevel($event)"
+        style="padding: 8px;"
+      >
+      <div class="battery-indicator">
+        <div class="battery-visual">
+          <div class="battery-level" [style.width.%]="pourcentageChargeActuelle" [ngClass]="getBatteryClass()"></div>
+        </div>
+        <span class="battery-text">{{ pourcentageChargeActuelle }}%</span>
+      </div>
+    </div>
+
+    <!-- Date et heure -->
+    <div class="datetime-group">
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-calendar-alt"></i>
+          Date de réservation
+        </label>
+        <input 
+          type="date" 
+          class="form-control" 
+          formControlName="dateReservation"
+          [min]="minDate"
+          (change)="calculateEstimation()"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-clock"></i>
+          Heure de début
+        </label>
+        <input 
+          type="time" 
+          class="form-control" 
+          formControlName="heureDebut"
+          (change)="calculateEstimation()"
+          required
+        >
+      </div>
+    </div>
+
+    <!-- Informations estimées -->
+    <div class="estimated-info" *ngIf="estimation">
+      <h4>
+        <i class="fas fa-info-circle"></i>
+        Estimation de la session
+      </h4>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Temps estimé</span>
+          <span class="info-value">{{ estimation.tempsEstime }} min</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Fin prévue</span>
+          <span class="info-value">{{ estimation.finPrevue }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Coût estimé</span>
+          <span class="info-value">{{ estimation.coutEstime | currency:'EUR':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Énergie ajoutée</span>
+          <span class="info-value">{{ estimation.energieAjoutee }} kWh</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="close()">
+        <i class="fas fa-times"></i>
+        Annuler
+      </button>
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="reservationForm.invalid || isSubmitting"
+        [class.loading]="isSubmitting"
+      >
+        <i class="fas fa-bolt" *ngIf="!isSubmitting"></i>
+        <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+        {{ isSubmitting ? 'Réservation...' : 'Réserver maintenant' }}
+      </button>
+    </div>
+  </form>
+</div>

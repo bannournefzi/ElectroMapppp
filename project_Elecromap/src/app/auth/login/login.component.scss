@@ -1,0 +1,69 @@
+.login-section {
+  position: relative;
+  height: 100vh;
+  background: url('/assets/img/tesla.png') no-repeat center center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.login-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.02); /* Darken image for clarity */
+  backdrop-filter: blur(4px);      /* Optional: blur image */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  max-width: 420px;
+  width: 100%;
+  padding: 20px;
+}
+
+.login-card {
+  background: rgba(253, 252, 252, 0);
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgb(248, 248, 248);
+}
+
+.text-glow {
+  color: #00e7ff;
+  text-shadow: 0 0 5px #00e7ff;
+}
+
+.input-neon {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.input-neon:focus {
+  border-color: #00e7ff;
+  box-shadow: 0 0 8px #00e7ff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-electric {
+  background-color: #00e7ff;
+  color: #000;
+  padding: 12px;
+  font-weight: bold;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-electric:hover {
+  background-color: #00c2ff;
+}
+
+.text-electric {
+  color: #00e7ff;
+  text-decoration: underline;
+}

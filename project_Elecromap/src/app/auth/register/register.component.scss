@@ -1,0 +1,730 @@
+// Variables SCSS
+$primary-color: #4285f4;
+$primary-dark: #1a73e8;
+$secondary-color: #34a853;
+$danger-color: #ea4335;
+$warning-color: #fbbc04;
+$success-color: #34a853;
+$text-primary: #202124;
+$text-secondary: #5f6368;
+$text-light: #9aa0a6;
+$border-color: #dadce0;
+$background-light: #f8f9fa;
+$card-background: rgba(255, 255, 255, 0.9);
+$shadow-light: 0 2px 10px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.15);
+$border-radius: 8px;
+$border-radius-large: 16px;
+$transition: all 0.3s ease;
+
+// Base styles
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+// Page principale
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+              url('/assets/img/tesla2.png') center/cover no-repeat;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(66, 133, 244, 0.1);
+    backdrop-filter: blur(2px);
+  }
+}
+
+// Wrapper du formulaire
+.register-wrapper {
+  background: $card-background;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: $border-radius-large;
+  box-shadow: $shadow-medium;
+  padding: 32px;
+  width: 100%;
+  max-width: 550px;
+  position: relative;
+  z-index: 10;
+}
+
+// Header
+.register-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    i {
+      font-size: 32px;
+      color: $primary-color;
+    }
+
+    span {
+      font-size: 24px;
+      font-weight: 700;
+      color: $text-primary;
+    }
+  }
+
+  .register-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 8px;
+  }
+
+  .register-subtitle {
+    font-size: 14px;
+    color: $text-secondary;
+  }
+}
+
+// Formulaire
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Row pour les inputs côte à côte
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Groupe d'input
+.input-group {
+  position: relative;
+  margin-bottom: 4px;
+
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-light;
+    font-size: 16px;
+    z-index: 2;
+    transition: $transition;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid $border-color;
+    border-radius: $border-radius;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    color: $text-primary;
+    transition: $transition;
+    outline: none;
+
+    &:focus {
+      border-color: $primary-color;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+
+      ~ .input-icon {
+        color: $primary-color;
+      }
+
+      + .input-label,
+      + .select-label {
+        transform: translateY(-28px) scale(0.85);
+        color: $primary-color;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0 6px;
+      }
+    }
+
+    &:not(:placeholder-shown) + .input-label,
+    &:not(:placeholder-shown) + .select-label {
+      transform: translateY(-28px) scale(0.85);
+      color: $text-secondary;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0 6px;
+    }
+
+    &:invalid:not(:focus) {
+      border-color: $danger-color;
+    }
+  }
+
+  .form-select {
+    cursor: pointer;
+    
+    option {
+      background: white;
+      color: $text-primary;
+    }
+  }
+
+  .input-label,
+  .select-label {
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: $text-light;
+    transition: $transition;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .password-toggle {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: $text-light;
+    cursor: pointer;
+    font-size: 16px;
+    transition: $transition;
+    z-index: 3;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+// Messages d'erreur
+.input-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: $danger-color;
+
+  i {
+    font-size: 10px;
+  }
+}
+
+// Indicateur de force du mot de passe
+.password-strength {
+  margin-top: 8px;
+
+  .strength-bars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+
+    .strength-bar {
+      flex: 1;
+      height: 3px;
+      background: $border-color;
+      border-radius: 2px;
+      transition: $transition;
+
+      &.active {
+        &.weak {
+          background: $danger-color;
+        }
+        &.medium {
+          background: $warning-color;
+        }
+        &.strong {
+          background: $success-color;
+        }
+      }
+    }
+  }
+
+  .strength-info {
+    .strength-text {
+      font-size: 12px;
+      color: $text-secondary;
+      font-weight: 500;
+    }
+
+    .strength-tips {
+      margin-top: 4px;
+      
+      small {
+        font-size: 11px;
+        color: $text-light;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+}
+
+// Sections
+.preferences-section,
+.terms-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(218, 220, 224, 0.5);
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i {
+      color: $primary-color;
+    }
+  }
+}
+
+// Checkbox groups
+.checkbox-group {
+  margin-bottom: 12px;
+
+  .checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+
+    input[type="checkbox"] {
+      display: none;
+    }
+
+    .checkmark {
+      width: 18px;
+      height: 18px;
+      border: 2px solid $border-color;
+      border-radius: 4px;
+      position: relative;
+      transition: $transition;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: rgba(255, 255, 255, 0.8);
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 4px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+        opacity: 0;
+        transition: $transition;
+      }
+    }
+
+    input[type="checkbox"]:checked + .checkmark {
+      background: $primary-color;
+      border-color: $primary-color;
+
+      &::after {
+        opacity: 1;
+      }
+    }
+
+    .checkbox-text {
+      color: $text-secondary;
+
+      strong {
+        color: $text-primary;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      small {
+        font-size: 12px;
+        color: $text-light;
+      }
+    }
+  }
+
+  &.required .checkbox-text {
+    color: $text-primary;
+  }
+}
+
+// Liens
+.link {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 500;
+  transition: $transition;
+
+  &:hover {
+    color: $primary-dark;
+    text-decoration: underline;
+  }
+}
+
+// Bouton principal
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, $primary-color, $primary-dark);
+  color: white;
+  border: none;
+  border-radius: $border-radius;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(66, 133, 244, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.loading {
+    cursor: not-allowed;
+  }
+
+  .btn-content,
+  .loading-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// Note du formulaire
+.form-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $text-light;
+  margin-top: 8px;
+  justify-content: center;
+}
+
+// Messages d'alerte
+.message-container {
+  margin-top: 16px;
+
+  .alert {
+    padding: 12px 16px;
+    border-radius: $border-radius;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    backdrop-filter: blur(10px);
+
+    &.alert-success {
+      background: rgba(52, 168, 83, 0.1);
+      color: $success-color;
+      border: 1px solid rgba(52, 168, 83, 0.3);
+    }
+
+    &.alert-error {
+      background: rgba(234, 67, 53, 0.1);
+      color: $danger-color;
+      border: 1px solid rgba(234, 67, 53, 0.3);
+    }
+
+    i {
+      font-size: 16px;
+      margin-top: 2px;
+    }
+
+    .alert-content {
+      flex: 1;
+
+      strong {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Login social
+.social-login {
+  margin-top: 24px;
+
+  .divider {
+    text-align: center;
+    margin-bottom: 16px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(218, 220, 224, 0.5);
+    }
+
+    span {
+      background: $card-background;
+      padding: 0 16px;
+      font-size: 12px;
+      color: $text-light;
+      position: relative;
+    }
+  }
+
+  .social-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    .social-btn {
+      padding: 12px 16px;
+      border: 2px solid $border-color;
+      border-radius: $border-radius;
+      background: rgba(255, 255, 255, 0.8);
+      color: $text-secondary;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: $transition;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-1px);
+      }
+
+      &.google {
+        &:hover {
+          border-color: #db4437;
+          color: #db4437;
+        }
+      }
+
+      &.facebook {
+        &:hover {
+          border-color: #4267b2;
+          color: #4267b2;
+        }
+      }
+    }
+  }
+}
+
+// Footer
+.register-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(218, 220, 224, 0.5);
+
+  .login-link {
+    font-size: 14px;
+    color: $text-secondary;
+    margin-bottom: 12px;
+  }
+
+  .link-primary {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    transition: $transition;
+
+    &:hover {
+      color: $primary-dark;
+      text-decoration: underline;
+    }
+  }
+
+  .footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+
+    .footer-link {
+      color: $text-light;
+      text-decoration: none;
+      transition: $transition;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    .separator {
+      color: $text-light;
+    }
+  }
+}
+
+// Éléments décoratifs (simplifiés)
+.decoration-elements {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(66, 133, 244, 0.1);
+    animation: float 8s ease-in-out infinite;
+
+    &.circle-1 {
+      width: 60px;
+      height: 60px;
+      top: 15%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    &.circle-2 {
+      width: 80px;
+      height: 80px;
+      top: 70%;
+      right: 15%;
+      animation-delay: 3s;
+    }
+
+    &.circle-3 {
+      width: 40px;
+      height: 40px;
+      bottom: 25%;
+      left: 85%;
+      animation-delay: 6s;
+    }
+  }
+
+  .floating-icon {
+    position: absolute;
+    color: rgba(66, 133, 244, 0.2);
+    font-size: 24px;
+    animation: float 10s ease-in-out infinite;
+
+    &.icon-1 {
+      top: 20%;
+      right: 20%;
+      animation-delay: 1s;
+    }
+
+    &.icon-2 {
+      bottom: 30%;
+      left: 15%;
+      animation-delay: 4s;
+    }
+
+    &.icon-3 {
+      top: 60%;
+      left: 80%;
+      animation-delay: 7s;
+    }
+  }
+}
+
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+    opacity: 0.8;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .register-wrapper {
+    padding: 24px;
+    margin: 10px;
+  }
+
+  .register-header .logo {
+    span {
+      font-size: 20px;
+    }
+    i {
+      font-size: 28px;
+    }
+  }
+
+  .register-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-page {
+    padding: 10px;
+  }
+
+  .register-wrapper {
+    padding: 20px;
+  }
+
+  .social-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: 4px;
+
+    .separator {
+      display: none;
+    }
+  }
+}

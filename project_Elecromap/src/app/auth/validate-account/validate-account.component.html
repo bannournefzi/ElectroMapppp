@@ -1,0 +1,13 @@
+<div class="validate-wrapper">
+  <div class="validate-card">
+    <h2 class="title">✅ Validation du Compte</h2>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <input type="text" class="form-input" placeholder="Code reçu par email" formControlName="token" />
+      <button type="submit" class="form-button" [disabled]="form.invalid">Valider</button>
+    </form>
+
+    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+  </div>
+</div>

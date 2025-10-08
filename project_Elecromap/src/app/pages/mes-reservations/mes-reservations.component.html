@@ -1,0 +1,673 @@
+<div class="reservations-container">
+  <!-- En-tête de la page -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <i class="fas fa-calendar-alt"></i>
+          Mes Réservations
+        </h1>
+        <p class="page-subtitle">Gérez vos sessions de recharge passées et à venir</p>
+      </div>
+      
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon active">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.activeReservations }}</span>
+            <span class="stat-label">Active{{ stats.activeReservations > 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon charging">
+            <i class="fas fa-charging-station"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.enChargeReservations }}</span>
+            <span class="stat-label">En charge</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon total">
+            <i class="fas fa-history"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.totalReservations }}</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon energy">
+            <i class="fas fa-battery-three-quarters"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-number">{{ stats.totalEnergyCharged | number:'1.0-1' }}</span>
+            <span class="stat-label">kWh</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher par station, véhicule..."
+        [(ngModel)]="searchTerm"
+        (input)="filterReservations()"
+        class="search-input"
+      >
+    </div>
+
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'all'"
+        (click)="setFilter('all')"
+      >
+        <i class="fas fa-list"></i>
+        Toutes ({{ reservations.length }})
+      </button>
+      
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'active'"
+        (click)="setFilter('active')"
+      >
+        <i class="fas fa-bolt"></i>
+        Actives ({{ getFilteredCount('ACTIVE') }})
+      </button>
+
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'en_attente'"
+        (click)="setFilter('en_attente')"
+      >
+        <i class="fas fa-clock"></i>
+        En attente ({{ getFilteredCount('EN_ATTENTE') }})
+      </button>
+
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'en_cours'"
+        (click)="setFilter('en_cours')"
+      >
+        <i class="fas fa-play-circle"></i>
+        En cours ({{ getFilteredCount('EN_COURS') }})
+      </button>
+
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'en_charge'"
+        (click)="setFilter('en_charge')"
+      >
+        <i class="fas fa-charging-station"></i>
+        En charge ({{ getFilteredCount('EN_CHARGE') }})
+      </button>
+      
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'completed'"
+        (click)="setFilter('completed')"
+      >
+        <i class="fas fa-check-circle"></i>
+        Terminées ({{ getFilteredCount('TERMINEE') }})
+      </button>
+      
+      <button 
+        class="filter-tab"
+        [class.active]="activeFilter === 'cancelled'"
+        (click)="setFilter('cancelled')"
+      >
+        <i class="fas fa-times-circle"></i>
+        Annulées ({{ getFilteredCount('ANNULEE') }})
+      </button>
+    </div>
+
+    <div class="sort-options">
+      <select [(ngModel)]="sortBy" (change)="sortReservations()" class="sort-select">
+        <option value="dateDesc">Plus récentes</option>
+        <option value="dateAsc">Plus anciennes</option>
+        <option value="station">Par station</option>
+        <option value="vehicule">Par véhicule</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Liste des réservations -->
+  <div class="reservations-list" *ngIf="!isLoading && filteredReservations.length > 0">
+    <div 
+      class="reservation-card"
+      *ngFor="let reservation of paginatedReservations; trackBy: trackByReservation"
+      [class]="getStatusClass(reservation.statutDetaille || 'EN_ATTENTE')"
+    >
+      <!-- Section des badges de statut -->
+      <div class="status-badges-section">
+        <!-- Statut de réservation -->
+        <div class="status-badge" [attr.data-status]="reservation.statutDetaille">
+          <i 
+            class="fas"
+            [class]="getStatusIcon(reservation.statutDetaille || 'EN_ATTENTE')"
+          ></i>
+          <span>{{ getDetailedStatusLabel(reservation.statutDetaille || 'EN_ATTENTE') }}</span>
+        </div>
+
+        <!-- NOUVEAU : Statut de paiement -->
+        <div class="payment-status-badge" [attr.data-payment]="reservation.paiementStatut || 'NONE'">
+          <i class="fas" [class]="getPaymentStatusIcon(reservation.paiementStatut || 'NONE')"></i>
+          <span>{{ getPaymentStatusLabel(reservation.paiementStatut || 'NONE') }}</span>
+        </div>
+      </div>
+
+      <!-- Timer pour les réservations en attente -->
+      <div class="countdown-timer" *ngIf="reservation.statutDetaille === 'EN_ATTENTE' && getTimeRemaining(reservation) > 0">
+        <i class="fas fa-hourglass-half"></i>
+        <span>Commence dans {{ formatDuration(getTimeRemaining(reservation)) }}</span>
+      </div>
+
+      <!-- Timer pour les réservations actives -->
+      <div class="active-timer" *ngIf="reservation.statutDetaille === 'EN_COURS' || reservation.statutDetaille === 'EN_CHARGE'">
+        <div class="timer-info">
+          <div class="elapsed-time">
+            <i class="fas fa-play"></i>
+            <span>{{ formatDuration(getElapsedTime(reservation)) }}</span>
+          </div>
+          <div class="remaining-time">
+            <i class="fas fa-clock"></i>
+            <span>{{ formatDuration(getTimeRemaining(reservation)) }} restant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <!-- Informations principales -->
+        <div class="main-info">
+          <div class="station-info">
+            <h3 class="station-name">
+              <i class="fas fa-charging-station"></i>
+              {{ reservation.station?.name || reservation.station || ('Station #' + reservation.stationId) }}
+            </h3>
+            <p class="station-location">
+              <i class="fas fa-map-marker-alt"></i>
+              {{ reservation.station?.address || reservation.stationAdresse || 'Adresse non disponible' }}
+            </p>
+          </div>
+
+          <div class="vehicle-info">
+            <span class="vehicle-type">
+              <i class="fas fa-car"></i>
+              {{ reservation.typeVehicule }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Détails de la réservation -->
+        <div class="reservation-details">
+          <div class="detail-group">
+            <div class="detail-item">
+              <i class="fas fa-calendar"></i>
+              <span class="detail-label">Date</span>
+              <span class="detail-value">{{ formatDate(reservation.dateReservation) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-clock"></i>
+              <span class="detail-label">Heure</span>
+              <span class="detail-value">{{ formatTime(reservation.dateReservation) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-stopwatch"></i>
+              <span class="detail-label">Durée</span>
+              <span class="detail-value">{{ formatDuration(reservation.tempsEstimeMinutes) }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-battery-quarter"></i>
+              <span class="detail-label">Charge initiale</span>
+              <span class="detail-value">{{ reservation.pourcentageChargeActuelle }}%</span>
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-item" *ngIf="reservation.energieAjoutee">
+              <i class="fas fa-bolt"></i>
+              <span class="detail-label">Énergie</span>
+              <span class="detail-value">{{ reservation.energieAjoutee }} kWh</span>
+            </div>
+            
+            <div class="detail-item" *ngIf="reservation.coutEstime">
+              <i class="fas fa-euro-sign"></i>
+              <span class="detail-label">Coût</span>
+              <span class="detail-value">{{ reservation.coutEstime | currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+            
+            <div class="detail-item">
+              <i class="fas fa-flag-checkered"></i>
+              <span class="detail-label">Fin prévue</span>
+              <span class="detail-value">{{ formatTime(reservation.dateFinPrevue) }}</span>
+            </div>
+
+            <div class="detail-item" *ngIf="reservation.pourcentageChargeSouhaite">
+              <i class="fas fa-battery-full"></i>
+              <span class="detail-label">Charge cible</span>
+              <span class="detail-value">{{ reservation.pourcentageChargeSouhaite }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress bar pour les réservations actives -->
+        <div class="progress-section" *ngIf="reservation.statutDetaille === 'EN_COURS' || reservation.statutDetaille === 'EN_CHARGE'">
+          <div class="progress-info">
+            <span class="progress-label">
+              <span *ngIf="reservation.statutDetaille === 'EN_COURS'">Préparation de la session</span>
+              <span *ngIf="reservation.statutDetaille === 'EN_CHARGE'">Progression de la charge</span>
+            </span>
+            <span class="progress-value">{{ getChargingProgress(reservation) }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div 
+              class="progress-fill"
+              [class.charging]="reservation.statutDetaille === 'EN_CHARGE'"
+              [class.connecting]="reservation.statutDetaille === 'EN_COURS'"
+              [style.width.%]="getChargingProgress(reservation)"
+            ></div>
+          </div>
+          
+          <!-- Informations de charge en temps réel -->
+          <div class="charging-info" *ngIf="reservation.statutDetaille === 'EN_CHARGE'">
+            <div class="charging-stats">
+              <div class="stat">
+                <i class="fas fa-zap"></i>
+                <span>{{ reservation.energieAjoutee || 0 }} kWh ajoutés</span>
+              </div>
+              <div class="stat" *ngIf="reservation.coutEstime">
+                <i class="fas fa-euro-sign"></i>
+                <span>{{ reservation.coutEstime | currency:'EUR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicateur d'attente pour les réservations programmées -->
+        <div class="waiting-section" *ngIf="reservation.statutDetaille === 'EN_ATTENTE'">
+          <div class="waiting-info">
+            <i class="fas fa-calendar-check"></i>
+            <span>Session programmée pour {{ formatTime(reservation.dateReservation) }}</span>
+          </div>
+          <div class="preparation-checklist">
+            <div class="checklist-item">
+              <i class="fas fa-check-circle text-success"></i>
+              <span>Station réservée</span>
+            </div>
+            <div class="checklist-item">
+              <i class="fas fa-clock text-warning"></i>
+              <span>En attente du début</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section d'état pour les réservations expirées -->
+        <div class="expired-section" *ngIf="reservation.statutDetaille === 'EXPIREE'">
+          <div class="expired-info">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Cette réservation a expiré</span>
+          </div>
+          <p class="expired-message">
+            La session n'a pas été utilisée dans les temps impartis.
+          </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="card-actions">
+          <button 
+            class="action-btn view-btn"
+            (click)="viewDetails(reservation)"
+            title="Voir les détails"
+          >
+            <i class="fas fa-eye"></i>
+            Détails
+          </button>
+
+          <!-- Action de navigation pour les réservations actives -->
+          <button 
+            class="action-btn navigate-btn"
+            (click)="navigateToStation(reservation)"
+            title="Localiser la station"
+            *ngIf="reservation.statutDetaille === 'EN_ATTENTE' || reservation.statutDetaille === 'EN_COURS' || reservation.statutDetaille === 'EN_CHARGE'"
+          >
+            <i class="fas fa-directions"></i>
+            Localiser
+          </button>
+
+          <!-- Action de paiement - MODIFIÉ -->
+          <button
+            class="action-btn pay-btn"
+            title="Payer la réservation"
+            (click)="pay(reservation)"
+            [disabled]="loadingPaymentId === reservation.id || !isPayable(reservation) || isPaymentSucceeded(reservation)"
+            *ngIf="isPayable(reservation) && !isPaymentSucceeded(reservation)"
+          >
+            <i class="fas fa-credit-card" *ngIf="loadingPaymentId !== reservation.id"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="loadingPaymentId === reservation.id"></i>
+            {{ loadingPaymentId === reservation.id ? 'Redirection...' : 'Payer' }}
+          </button>
+
+          <!-- NOUVEAU : Bouton paiement réussi (inactif) -->
+          <button
+            class="action-btn paid-btn"
+            title="Paiement effectué"
+            disabled
+            *ngIf="isPaymentSucceeded(reservation)"
+          >
+            <i class="fas fa-check"></i>
+            Payé
+          </button>
+
+          <!-- Action d'annulation -->
+          <button 
+            class="action-btn cancel-btn"
+            (click)="cancelReservation(reservation)"
+            title="Annuler la réservation"
+            *ngIf="canCancelReservation(reservation)"
+            [disabled]="reservation.cancelling"
+          >
+            <i class="fas fa-times" *ngIf="!reservation.cancelling"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="reservation.cancelling"></i>
+            Annuler
+          </button>
+
+          <!-- Action de répétition pour les réservations terminées -->
+          <button 
+            class="action-btn repeat-btn"
+            (click)="repeatReservation(reservation)"
+            title="Répéter cette réservation"
+            *ngIf="reservation.statutDetaille === 'TERMINEE'"
+          >
+            <i class="fas fa-redo"></i>
+            Répéter
+          </button>
+
+          <!-- Bouton d'assistance pour les réservations expirées -->
+          <button 
+            class="action-btn support-btn"
+            (click)="contactSupport(reservation)"
+            title="Contacter le support"
+            *ngIf="reservation.statutDetaille === 'EXPIREE'"
+          >
+            <i class="fas fa-life-ring"></i>
+            Support
+          </button>
+        </div>
+      </div>
+
+      <!-- Indicateur de temps réel pour les réservations en charge -->
+      <div class="live-indicator" *ngIf="reservation.statutDetaille === 'EN_CHARGE'">
+        <div class="pulse-dot"></div>
+        <span>EN DIRECT</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === 1"
+      (click)="changePage(currentPage - 1)"
+    >
+      <i class="fas fa-chevron-left"></i>
+      Précédent
+    </button>
+
+    <div class="page-numbers">
+      <button 
+        class="page-number"
+        *ngFor="let page of getPageNumbers()"
+        [class.active]="page === currentPage"
+        (click)="changePage(page)"
+      >
+        {{ page }}
+      </button>
+    </div>
+
+    <button 
+      class="pagination-btn"
+      [disabled]="currentPage === totalPages"
+      (click)="changePage(currentPage + 1)"
+    >
+      Suivant
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <!-- État vide -->
+  <div class="empty-state" *ngIf="!isLoading && filteredReservations.length === 0">
+    <div class="empty-icon">
+      <i class="fas fa-calendar-times"></i>
+    </div>
+    <h3 class="empty-title">Aucune réservation trouvée</h3>
+    <p class="empty-message">
+      <span *ngIf="searchTerm || activeFilter !== 'all'">
+        Essayez de modifier vos filtres de recherche.
+      </span>
+      <span *ngIf="!searchTerm && activeFilter === 'all'">
+        Vous n'avez pas encore effectué de réservation.
+      </span>
+    </p>
+    <button class="cta-button" (click)="goToStations()">
+      <i class="fas fa-plus"></i>
+      Faire une réservation
+    </button>
+  </div>
+
+  <!-- Chargement -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <p class="loading-text">Chargement de vos réservations...</p>
+  </div>
+</div>
+
+<!-- Modal de confirmation d'annulation -->
+<div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Confirmer l'annulation</h3>
+      <button class="modal-close" (click)="closeCancelModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir annuler cette réservation ?</p>
+      <div class="reservation-summary" *ngIf="reservationToCancel">
+        <p><strong>Station :</strong> {{ reservationToCancel.station?.nom }}</p>
+        <p><strong>Date :</strong> {{ formatDate(reservationToCancel.dateReservation) }}</p>
+        <p><strong>Heure :</strong> {{ formatTime(reservationToCancel.dateReservation) }}</p>
+        <p><strong>Durée :</strong> {{ formatDuration(reservationToCancel.tempsEstimeMinutes) }}</p>
+        <p><strong>Statut :</strong> {{ getDetailedStatusLabel(reservationToCancel.statutDetaille || 'EN_ATTENTE') }}</p>
+      </div>
+      <div class="cancellation-warning" *ngIf="reservationToCancel?.statutDetaille === 'EN_COURS'">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Attention : Cette réservation est en cours. L'annulation pourrait entraîner des frais.</span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeCancelModal()">
+        Garder la réservation
+      </button>
+      <button class="btn btn-danger" (click)="confirmCancelReservation()">
+        Oui, annuler
+      </button>
+    </div>
+  </div>
+</div>
+
+ <header class="navbar">
+    <div class="navbar-left">
+      <button class="menu-toggle" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="logo">
+        <i class="fas fa-bolt logo-icon"></i>
+        <div class="logo-text">
+          <span class="brand-name">ElectroMap</span>
+          <span class="slogan">Find. Charge. Go</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="navbar-center">
+      <div class="search-container">
+        <i class="fas fa-map-marker-alt search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Rechercher une station de charge..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+        >
+        <button class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="navbar-right">
+      <div class="quick-actions">
+        <button class="quick-action-btn" title="Mode sombre" (click)="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="quick-action-btn" title="Ma position" (click)="findMyLocation()">
+          <i class="fas fa-location-arrow"></i>
+        </button>
+      </div>
+      
+      <div class="notification-container" (click)="toggleNotifications()">
+        <i class="fas fa-bell notification-icon"></i>
+        <span class="notification-badge" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+      </div>
+      
+      <div class="profile-container" (click)="toggleProfileDropdown()">
+        <div class="profile-avatar">
+          <img 
+            [src]="userAvatar || 'https://ui-avatars.com/api/?name=' + userName + '&background=4285f4&color=fff&size=40'"
+            [alt]="userName"
+            class="avatar-img"
+          >
+          <div class="status-indicator online"></div>
+        </div>
+        <div class="profile-info">
+          <span class="profile-name">{{userName}}</span>
+          <span class="profile-status">{{userStatus}}</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-arrow"></i>
+        
+        <div class="profile-dropdown" [class.show]="showProfileDropdown">
+          <div class="dropdown-item" (click)="navigateToProfile()">
+            <i class="fas fa-user"></i>
+            <span>Mon Profil</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToBookings()">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Mes Réservations</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToPayments()">
+            <i class="fas fa-credit-card"></i>
+            <span>Moyens de Paiement</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToSettings()">
+            <i class="fas fa-cog"></i>
+            <span>Préférences</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'user'" (click)="navigateTo('user')">
+          <i class="fas fa-home nav-icon"></i>
+          <span class="nav-text">Accueil</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'mapuser'" (click)="navigateTo('mapuser')">
+  <i class="fas fa-map nav-icon"></i>
+  <span class="nav-text">Carte Interactive</span>
+</div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'stations'" (click)="navigateTo('AllStations')">
+          <i class="fas fa-charging-station nav-icon"></i>
+          <span class="nav-text">Stations Proches</span>
+        </div>
+        
+        <!-- <div class="nav-item" [class.active]="activeRoute === 'favorites'" (click)="navigateTo('favorites')">
+          <i class="fas fa-heart nav-icon"></i>
+          <span class="nav-text">Mes Favoris</span>
+          <span class="nav-badge" *ngIf="favoritesCount > 0">{{favoritesCount}}</span>
+        </div> -->
+      </div>
+      
+      <div class="nav-divider"></div>
+      
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'history'" (click)="navigateTo('history')">
+          <i class="fas fa-history nav-icon"></i>
+          <span class="nav-text">Historique</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'bookings'" (click)="navigateTo('bookings')">
+          <i class="fas fa-calendar-check nav-icon"></i>
+          <span class="nav-text">Réservations</span>
+          <span class="nav-badge warning" *ngIf="upcomingBookings > 0">{{upcomingBookings}}</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'wallet'" (click)="navigateTo('wallet')">
+          <i class="fas fa-wallet nav-icon"></i>
+          <span class="nav-text">Portefeuille</span>
+        </div>
+      </div>
+      
+      <div class="nav-divider"></div>
+      
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'support'" (click)="navigateTo('support')">
+          <i class="fas fa-life-ring nav-icon"></i>
+          <span class="nav-text">Support</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'settings'" (click)="navigateTo('settings')">
+          <i class="fas fa-cog nav-icon"></i>
+          <span class="nav-text">Paramètres</span>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="user-stats">
+        <div class="stat-item">
+          <i class="fas fa-leaf stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{co2Saved}}kg</span>
+            <span class="stat-label">CO₂ économisé</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>

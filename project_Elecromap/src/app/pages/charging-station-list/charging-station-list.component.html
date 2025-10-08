@@ -1,0 +1,364 @@
+<div class="charging-station-container">
+  <!-- Header avec titre et boutons d'action -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <i class="fas fa-charging-station"></i>
+        Stations de Recharge
+      </h1>
+      <div class="header-stats">
+        <span class="stat-item">
+          <i class="fas fa-plug"></i>
+          Total: {{ allStations.length }}
+        </span>
+        <span class="stat-item available">
+          <i class="fas fa-check-circle"></i>
+          Disponibles: {{ getAvailableStationsCount() }}
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="reloadStations()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt" [class.spinning]="isLoading"></i>
+        Actualiser
+      </button>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        <i class="fas fa-plus"></i>
+        Ajouter une station
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="availability-filter">Disponibilité:</label>
+      <select id="availability-filter" [(ngModel)]="filterAvailability" (change)="applyFilters()" class="filter-select">
+        <option value="all">Toutes</option>
+        <option value="available">Disponibles</option>
+        <option value="unavailable">Indisponibles</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="type-filter">Type de charge:</label>
+      <select id="type-filter" [(ngModel)]="filterType" (change)="applyFilters()" class="filter-select">
+        <option value="all">Tous les types</option>
+        <option value="STANDARD">Charge normale</option>
+        <option value="FAST">Charge rapide</option>
+        <option value="ULTRA_FAST">Charge ultra rapide</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des stations...</p>
+  </div>
+
+  <!-- Liste des stations -->
+  <div *ngIf="!isLoading" class="stations-grid">
+    <div *ngFor="let station of stations; trackBy: trackByStationId" class="station-card">
+      <div class="station-header">
+        <h3 class="station-name">{{ station.name }}</h3>
+        <div class="station-badges">
+          <span class="badge type-badge" [ngClass]="getTypeClass(station.type)">
+            <i [ngClass]="getTypeIcon(station.type)"></i>
+            {{ getTypeLabel(station.type) }}
+          </span>
+          <span class="badge availability-badge" [ngClass]="getAvailabilityClass(station.available)">
+            <i class="fas" [ngClass]="station.available ? 'fa-check-circle' : 'fa-times-circle'"></i>
+            {{ station.available ? 'Disponible' : 'Indisponible' }}
+          </span>
+          <span class="badge working-badge" [ngClass]="getWorkingClass(station.working)">
+            <i class="fas" [ngClass]="station.working ? 'fa-cog' : 'fa-exclamation-triangle'"></i>
+            {{ station.working ? 'Fonctionnelle' : 'En panne' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="station-content">
+        <div class="station-info">
+          <div class="info-row" *ngIf="station.address">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ station.address }}</span>
+          </div>
+          
+          <div class="info-row" *ngIf="station.power">
+            <i class="fas fa-bolt"></i>
+            <span>{{ station.power }} kW</span>
+          </div>
+          
+          <div class="info-row" *ngIf="station.pricePerKwh !== undefined">
+            <i class="fas fa-euro-sign"></i>
+            <span>{{ station.pricePerKwh | currency:'EUR':'symbol':'1.2-2' }}/kWh</span>
+          </div>
+          
+          <div class="info-row" *ngIf="station.connectorTypes">
+            <i class="fas fa-plug"></i>
+            <span>{{ station.connectorTypes }}</span>
+          </div>
+          
+          <div class="info-row" *ngIf="station.averageChargeTime">
+            <i class="fas fa-clock"></i>
+            <span>{{ station.averageChargeTime }} min (temps moyen)</span>
+          </div>
+        </div>
+
+        <div class="station-description" *ngIf="station.description">
+          <p>{{ station.description }}</p>
+        </div>
+
+        <div class="compatible-vehicles" *ngIf="station.compatibleVehicles && station.compatibleVehicles.length > 0">
+          <h4>Véhicules compatibles:</h4>
+          <div class="vehicle-tags">
+            <span *ngFor="let vehicle of station.compatibleVehicles" class="vehicle-tag">
+              {{ vehicle }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="station-actions">
+        <button class="btn btn-sm btn-info" 
+                (click)="goToMapPosition(station.latitude, station.longitude)"
+                title="Voir sur la carte">
+          <i class="fas fa-map"></i>
+          Carte
+        </button>
+        <button class="btn btn-sm btn-secondary" 
+                (click)="openEditModal(station)"
+                title="Modifier">
+          <i class="fas fa-edit"></i>
+          Modifier
+        </button>
+        <button class="btn btn-sm btn-danger" 
+                (click)="openDeleteConfirmation(station)"
+                title="Supprimer">
+          <i class="fas fa-trash"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message si aucune station -->
+  <div *ngIf="!isLoading && stations.length === 0" class="no-stations">
+    <i class="fas fa-charging-station"></i>
+    <h3>Aucune station trouvée</h3>
+    <p>Il n'y a pas de stations correspondant à vos critères.</p>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      <i class="fas fa-plus"></i>
+      Ajouter la première station
+    </button>
+  </div>
+</div>
+
+<!-- Modal d'ajout de station -->
+<div class="modal-overlay" *ngIf="isAddModalOpen" (click)="closeAddModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-plus"></i> Ajouter une station</h2>
+      <button class="modal-close" (click)="closeAddModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form class="modal-body" (ngSubmit)="submitAddStation()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="add-name">Nom de la station *</label>
+          <input type="text" id="add-name" [(ngModel)]="newStation.name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-type">Type de charge *</label>
+          <select id="add-type" [(ngModel)]="newStation.type" name="type" required>
+            <option value="STANDARD">Charge normale</option>
+            <option value="FAST">Charge rapide</option>
+            <option value="ULTRA_FAST">Charge ultra rapide</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-address">Adresse</label>
+          <input type="text" id="add-address" [(ngModel)]="newStation.address" name="address">
+        </div>
+        
+        <div class="form-group">
+          <label for="add-power">Puissance (kW) *</label>
+          <input type="number" id="add-power" [(ngModel)]="newStation.power" name="power" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-latitude">Latitude *</label>
+          <input type="number" id="add-latitude" [(ngModel)]="newStation.latitude" name="latitude" step="any" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-longitude">Longitude *</label>
+          <input type="number" id="add-longitude" [(ngModel)]="newStation.longitude" name="longitude" step="any" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-price">Prix par kWh (€)</label>
+          <input type="number" id="add-price" [(ngModel)]="newStation.pricePerKwh" name="pricePerKwh" step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label for="add-connectors">Types de connecteurs</label>
+          <input type="text" id="add-connectors" [(ngModel)]="newStation.connectorTypes" name="connectorTypes">
+        </div>
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="add-description">Description</label>
+        <textarea id="add-description" [(ngModel)]="newStation.description" name="description" rows="3"></textarea>
+      </div>
+      
+      <div class="form-group full-width">
+        <label>Véhicules compatibles</label>
+        <div class="checkbox-grid">
+          <label *ngFor="let carType of carTypes" class="checkbox-label">
+            <input type="checkbox" 
+                   [checked]="newStation.compatibleVehicles?.includes(carType)"
+                   (change)="toggleCarType(carType, $event)">
+            <span>{{ carType }}</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="newStation.available" name="available">
+          <span>Station disponible</span>
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="newStation.working" name="working">
+          <span>Station fonctionnelle</span>
+        </label>
+      </div>
+    </form>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeAddModal()">
+        Annuler
+      </button>
+      <button type="button" class="btn btn-primary" (click)="submitAddStation()">
+        <i class="fas fa-plus"></i>
+        Ajouter
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de modification de station -->
+<div class="modal-overlay" *ngIf="isEditModalOpen && selectedStation" (click)="closeModals()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2><i class="fas fa-edit"></i> Modifier la station</h2>
+      <button class="modal-close" (click)="closeModals()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form class="modal-body" (ngSubmit)="submitEditStation()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="edit-name">Nom de la station *</label>
+          <input type="text" id="edit-name" [(ngModel)]="selectedStation.name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-type">Type de charge *</label>
+          <select id="edit-type" [(ngModel)]="selectedStation.type" name="type" required>
+            <option value="STANDARD">Charge normale</option>
+            <option value="FAST">Charge rapide</option>
+            <option value="ULTRA_FAST">Charge ultra rapide</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-address">Adresse</label>
+          <input type="text" id="edit-address" [(ngModel)]="selectedStation.address" name="address">
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-power">Puissance (kW) *</label>
+          <input type="number" id="edit-power" [(ngModel)]="selectedStation.power" name="power" min="1" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-latitude">Latitude *</label>
+          <input type="number" id="edit-latitude" [(ngModel)]="selectedStation.latitude" name="latitude" step="any" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-longitude">Longitude *</label>
+          <input type="number" id="edit-longitude" [(ngModel)]="selectedStation.longitude" name="longitude" step="any" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-price">Prix par kWh (€)</label>
+          <input type="number" id="edit-price" [(ngModel)]="selectedStation.pricePerKwh" name="pricePerKwh" step="0.01" min="0">
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-connectors">Types de connecteurs</label>
+          <input type="text" id="edit-connectors" [(ngModel)]="selectedStation.connectorTypes" name="connectorTypes">
+        </div>
+      </div>
+      
+      <div class="form-group full-width">
+        <label for="edit-description">Description</label>
+        <textarea id="edit-description" [(ngModel)]="selectedStation.description" name="description" rows="3"></textarea>
+      </div>
+      
+      <div class="form-group full-width">
+        <label>Véhicules compatibles</label>
+        <div class="checkbox-grid">
+          <label *ngFor="let carType of carTypes" class="checkbox-label">
+            <input type="checkbox" 
+                   [checked]="selectedStation.compatibleVehicles?.includes(carType)"
+                   (change)="toggleEditCarType(carType, $event)">
+            <span>{{ carType }}</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="selectedStation.available" name="available">
+          <span>Station disponible</span>
+        </label>
+      </div>
+      
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="selectedStation.working" name="working">
+          <span>Station fonctionnelle</span>
+        </label>
+      </div>
+    </form>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModals()">
+        Annuler
+      </button>
+      <button type="button" class="btn btn-primary" (click)="submitEditStation()">
+        <i class="fas fa-save"></i>
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Map Component -->
+<app-map
+  (positionSelected)="updateNewStationPosition($event)"
+  [centerOn]="selectedMapPosition">
+</app-map>

@@ -1,0 +1,412 @@
+<!-- all-stations.component.html -->
+<div class="stations-page-container">
+
+
+     <!-- Top Navbar -->
+  <header class="navbar">
+    <div class="navbar-left">
+      <button class="menu-toggle" (click)="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="logo">
+        <i class="fas fa-bolt logo-icon"></i>
+        <div class="logo-text">
+          <span class="brand-name">ElectroMap</span>
+          <span class="slogan">Find. Charge. Go</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="navbar-center">
+      <div class="search-container">
+        <i class="fas fa-map-marker-alt search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Rechercher une station de charge..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+        >
+        <button class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="navbar-right">
+      <div class="quick-actions">
+        <button class="quick-action-btn" title="Mode sombre" (click)="toggleDarkMode()">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="quick-action-btn" title="Ma position" (click)="findMyLocation()">
+          <i class="fas fa-location-arrow"></i>
+        </button>
+      </div>
+      
+      <div class="notification-container" (click)="toggleNotifications()">
+        <i class="fas fa-bell notification-icon"></i>
+        <span class="notification-badge" *ngIf="notificationCount > 0">{{notificationCount}}</span>
+      </div>
+      
+      <div class="profile-container" (click)="toggleProfileDropdown()">
+        <div class="profile-avatar">
+          <img 
+            [src]="userAvatar || 'https://ui-avatars.com/api/?name=' + userName + '&background=4285f4&color=fff&size=40'"
+            [alt]="userName"
+            class="avatar-img"
+          >
+          <div class="status-indicator online"></div>
+        </div>
+        <div class="profile-info">
+          <span class="profile-name">{{userName}}</span>
+          <span class="profile-status">{{userStatus}}</span>
+        </div>
+        <i class="fas fa-chevron-down dropdown-arrow"></i>
+        
+        <div class="profile-dropdown" [class.show]="showProfileDropdown">
+          <div class="dropdown-item" (click)="navigateToProfile()">
+            <i class="fas fa-user"></i>
+            <span>Mon Profil</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToBookings()">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Mes Réservations</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToPayments()">
+            <i class="fas fa-credit-card"></i>
+            <span>Moyens de Paiement</span>
+          </div>
+          <div class="dropdown-item" (click)="navigateToSettings()">
+            <i class="fas fa-cog"></i>
+            <span>Préférences</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Déconnexion</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+   <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'dashboard'" (click)="navigateTo('user')">
+          <i class="fas fa-home nav-icon"></i>
+          <span class="nav-text">Accueil</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'mapuser'" (click)="navigateTo('mapuser')">
+  <i class="fas fa-map nav-icon"></i>
+  <span class="nav-text">Carte Interactive</span>
+</div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'stations'" (click)="navigateTo('AllStations')">
+          <i class="fas fa-charging-station nav-icon"></i>
+          <span class="nav-text">Stations Proches</span>
+        </div>
+        
+        <!-- <div class="nav-item" [class.active]="activeRoute === 'favorites'" (click)="navigateTo('favorites')">
+          <i class="fas fa-heart nav-icon"></i>
+          <span class="nav-text">Mes Favoris</span>
+          <span class="nav-badge" *ngIf="favoritesCount > 0">{{favoritesCount}}</span>
+        </div> -->
+      </div>
+      
+      <div class="nav-divider"></div>
+      
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'history'" (click)="navigateTo('history')">
+          <i class="fas fa-history nav-icon"></i>
+          <span class="nav-text">Historique</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'bookings'" (click)="navigateTo('bookings')">
+          <i class="fas fa-calendar-check nav-icon"></i>
+          <span class="nav-text">Réservations</span>
+          <span class="nav-badge warning" *ngIf="upcomingBookings > 0">{{upcomingBookings}}</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'wallet'" (click)="navigateTo('wallet')">
+          <i class="fas fa-wallet nav-icon"></i>
+          <span class="nav-text">Portefeuille</span>
+        </div>
+      </div>
+      
+      <div class="nav-divider"></div>
+      
+      <div class="nav-section">
+        <div class="nav-item" [class.active]="activeRoute === 'support'" (click)="navigateTo('support')">
+          <i class="fas fa-life-ring nav-icon"></i>
+          <span class="nav-text">Support</span>
+        </div>
+        
+        <div class="nav-item" [class.active]="activeRoute === 'settings'" (click)="navigateTo('settings')">
+          <i class="fas fa-cog nav-icon"></i>
+          <span class="nav-text">Paramètres</span>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="user-stats">
+        <div class="stat-item">
+          <i class="fas fa-leaf stat-icon"></i>
+          <div class="stat-content">
+            <span class="stat-value">{{co2Saved}}kg</span>
+            <span class="stat-label">CO₂ économisé</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      
+    </div>
+    
+    <!-- Stats rapides -->
+    <div class="quick-stats">
+      <div class="stat-item">
+        <span class="stat-number">{{ getTotalStationsCount() }}</span>
+        <span class="stat-label">Stations totales</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ getAvailableStationsCount() }}</span>
+        <span class="stat-label">Disponibles</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">{{ getFilteredStationsCount() }}</span>
+        <span class="stat-label">Correspondantes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input 
+          type="text" 
+          placeholder="Rechercher une station ou une adresse..." 
+          [(ngModel)]="searchTerm" 
+          (input)="onSearch()">
+      </div>
+      
+      <button class="location-btn" (click)="findMyLocation()" title="Trouver ma position">
+        <i class="fas fa-location-arrow"></i>
+        Ma position
+      </button>
+      
+      <button class="refresh-btn" (click)="refreshStations()" title="Actualiser">
+        <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i>
+        Actualiser
+      </button>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="filter-buttons-row">
+      <div class="availability-filters">
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedFilter === 'all'" 
+          (click)="filterStations('all')">
+          <i class="fas fa-list"></i> Toutes
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedFilter === 'available'" 
+          (click)="filterStations('available')">
+          <i class="fas fa-check-circle text-success"></i> Disponibles
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedFilter === 'unavailable'" 
+          (click)="filterStations('unavailable')">
+          <i class="fas fa-times-circle text-danger"></i> Occupées
+        </button>
+        <button 
+          class="filter-btn" 
+          [class.active]="selectedFilter === 'favorites'" 
+          (click)="filterStations('favorites')">
+          <i class="fas fa-heart text-danger"></i> Favoris
+        </button>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="type-filter">
+        <select class="type-select" [(ngModel)]="filterType" (change)="onTypeFilterChange()">
+          <option *ngFor="let type of stationTypes" [value]="type.value">
+            {{ type.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des stations...</p>
+    </div>
+  </div>
+
+  <!-- Stations Grid -->
+  <div class="stations-grid" *ngIf="!isLoading">
+    <div 
+      class="station-card" 
+      *ngFor="let station of filteredStations; trackBy: trackByStationId"
+      [class.favorite]="station.isFavorite">
+      
+      <!-- Station Header -->
+      <div class="station-header">
+        <div class="station-info">
+          <h3 class="station-name">{{ station.name }}</h3>
+          <p class="station-address">
+            <i class="fas fa-map-marker-alt"></i>
+            {{ station.address || 'Adresse non spécifiée' }}
+          </p>
+        </div>
+        
+        <div class="station-actions">
+          <button 
+            class="favorite-btn" 
+            [class.active]="station.isFavorite"
+            (click)="toggleFavorite(station)"
+            title="Ajouter aux favoris">
+            <i class="fas fa-heart"></i>
+          </button>
+          
+          <span class="status-badge" [class]="getAvailabilityClass(station)">
+            {{ getStatusText(station) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Station Details -->
+      <div class="station-details">
+        <!-- Type and Power -->
+        <div class="detail-row">
+          <div class="detail-item">
+            <i [class]="getTypeIcon(station.type)" class="detail-icon"></i>
+            <div class="detail-content">
+              <span class="detail-label">Type</span>
+              <span class="detail-value" [class]="getTypeClass(station.type)">
+                {{ getTypeLabel(station.type) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <i class="fas fa-bolt detail-icon text-warning"></i>
+            <div class="detail-content">
+              <span class="detail-label">Puissance</span>
+              <span class="detail-value">{{ station.power }} kW</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance and Price -->
+        <div class="detail-row">
+          <div class="detail-item" *ngIf="station.distance !== undefined">
+            <i class="fas fa-route detail-icon text-primary"></i>
+            <div class="detail-content">
+              <span class="detail-label">Distance</span>
+              <span class="detail-value" [class]="getDistanceClass(station.distance)">
+                {{ formatDistance(station.distance) }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <i class="fas fa-money-bill detail-icon text-success"></i>
+            <div class="detail-content">
+              <span class="detail-label">Prix</span>
+              <span class="detail-value">{{ formatPrice(station.pricePerKwh) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector Types -->
+        <div class="detail-row" *ngIf="station.connectorTypes">
+          <div class="detail-item full-width">
+            <i class="fas fa-plug detail-icon text-info"></i>
+            <div class="detail-content">
+              <span class="detail-label">Connecteurs</span>
+              <span class="detail-value">{{ station.connectorTypes }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compatible Vehicles -->
+        <div class="compatible-vehicles" *ngIf="station.compatibleVehicles && station.compatibleVehicles.length > 0">
+          <span class="vehicles-label">Compatible avec:</span>
+          <div class="vehicles-list">
+            <span 
+              class="vehicle-tag" 
+              *ngFor="let vehicle of station.compatibleVehicles.slice(0, 3)">
+              {{ vehicle }}
+            </span>
+            <span class="more-vehicles" *ngIf="station.compatibleVehicles.length > 3">
+              +{{ station.compatibleVehicles.length - 3 }} autres
+            </span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="station-description" *ngIf="station.description">
+          <p>{{ station.description }}</p>
+        </div>
+      </div>
+
+      <!-- Station Footer Actions -->
+      <div class="station-footer">
+    
+        
+        <button 
+          class="action-btn btn-outline" 
+          (click)="navigateToStation(station)"
+          title="Voir l'itinéraire">
+          <i class="fas fa-navigation"></i>
+          <span>Itinéraire</span>
+        </button>
+        
+        <button 
+  class="action-btn btn-primary" 
+  [disabled]="!isStationReservable(station)"
+  (click)="navigateToReservation(station.id!)"
+  [title]="isStationReservable(station) ? 'Réserver cette station' : 'Station non disponible'">
+  <i class="fas fa-calendar-plus"></i>
+  <span>{{ isStationReservable(station) ? 'Réserver' : 'Indisponible' }}</span>
+</button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredStations.length === 0">
+    <div class="empty-content">
+      <i class="fas fa-search empty-icon"></i>
+      <h3>Aucune station trouvée</h3>
+      <p *ngIf="searchTerm">
+        Aucune station ne correspond à votre recherche "<strong>{{ searchTerm }}</strong>"
+      </p>
+      <p *ngIf="!searchTerm">
+        Aucune station ne correspond aux filtres sélectionnés
+      </p>
+      <button class="btn-primary" (click)="filterStations('all'); searchTerm = ''; onSearch()">
+        <i class="fas fa-undo"></i>
+        Réinitialiser les filtres
+      </button>
+    </div>
+  </div>
+</div>
